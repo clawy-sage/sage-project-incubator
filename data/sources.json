@@ -1,0 +1,5 @@
+[
+  {"name": "OpenAI News", "url": "https://openai.com/news/rss.xml"},
+  {"name": "Anthropic News", "url": "https://www.anthropic.com/news/rss.xml"},
+  {"name": "The Verge Tech", "url": "https://www.theverge.com/rss/index.xml"}
+]
