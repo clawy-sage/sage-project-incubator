@@ -1,0 +1,12 @@
+**PatchPulse Digest (2026-04-15)**
+
+1. **[Safety & Policy]** Microsoft faces fresh Windows Recall security concerns _(prio 3, The Verge Tech)_
+   <https://www.theverge.com/report/912101/microsoft-windows-recall-new-security-concerns-response>
+2. **[General]** Amazon’s new Fire TV Stick HD is its ‘slimmest ever’ _(prio 1, The Verge Tech)_
+   <https://www.theverge.com/tech/912346/amazon-fire-tv-stick-hd-slimmest-ever>
+3. **[General]** Spotify now sells printed books _(prio 1, The Verge Tech)_
+   <https://www.theverge.com/entertainment/912232/spotify-update-physical-book-bookshop-sales>
+4. **[General]** The new Tomodachi Life is made to be shared — even if Nintendo doesn’t want you to _(prio 1, The Verge Tech)_
+   <https://www.theverge.com/entertainment/911950/tomodachi-life-living-the-dream-review-nintendo-switch>
+5. **[General]** Adobe embraces conversational AI editing, marking a ‘fundamental shift’ in creative work _(prio 0, The Verge Tech)_
+   <https://www.theverge.com/tech/912287/adobe-firefly-ai-assistant-announcement-editing>

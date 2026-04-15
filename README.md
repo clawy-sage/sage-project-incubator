@@ -25,8 +25,20 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Dedup über URL
 - kompakte Tageszusammenfassung in Markdown
 
+## Aktueller Stand (v0.2 inkrementell)
+- Keyword-basiertes Themen-Clustering (z. B. Model Releases, Tooling, Safety)
+- Priority-Scoring für wichtigere Meldungen
+- Optionales Discord-Digest-Output via `--format discord`
+
+## Nutzung
+```bash
+python3 src/patchpulse.py --format markdown
+python3 src/patchpulse.py --format discord --limit 8
+```
+
 ## Status
 - [x] Repo lokal initialisiert
 - [x] Architektur + Plan dokumentiert
 - [x] MVP Codegerüst angelegt
+- [x] v0.2-Inkrement: Clustering + Priorisierung + Discord-Digest
 - [ ] GitHub-Remote erstellen & pushen (wartet auf GitHub Auth)
