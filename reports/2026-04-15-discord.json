@@ -1,0 +1,81 @@
+{
+  "type": "discord_message_payload",
+  "generated_at": "2026-04-15T00:00:00Z",
+  "date": "2026-04-15",
+  "item_count": 8,
+  "message": "**PatchPulse Digest (2026-04-15)**\n\n1. **[Model Releases]** Google launches a Gemini AI app on Mac _(prio 3, The Verge Tech)_\n   <https://www.theverge.com/tech/912638/google-gemini-mac-app>\n2. **[General]** Microsoft counters the MacBook Neo with freebies for students _(prio 1, The Verge Tech)_\n   <https://www.theverge.com/news/912639/microsoft-counters-the-macbook-neo-with-freebies-for-students>\n3. **[General]** Best Buy’s Ultimate Upgrade Sale features deals on dozens of our favorite gadgets _(prio 0, The Verge Tech)_\n   <https://www.theverge.com/gadgets/911853/best-buy-ultimate-upgrade-sale-2026-tech-deals-apple>\n4. **[General]** Ford’s EV and software chief Doug Field is leaving the company _(prio 0, The Verge Tech)_\n   <https://www.theverge.com/transportation/912647/ford-doug-field-leaving-ev-software>\n5. **[Safety & Policy]** FTC pushes ad agencies into dropping brand safety rules _(prio 0, The Verge Tech)_\n   <https://www.theverge.com/policy/912680/ftc-ad-agency-settlement-trust-safety>\n6. **[General]** Ikea&#8217;s smart donut lamp is a sweet treat _(prio 0, The Verge Tech)_\n   <https://www.theverge.com/tech/911809/ikea-varmblixt-smart-donut-lamp-review-matter-thread>\n7. **[General]** Most people still don’t want anything to do with robotaxis _(prio 0, The Verge Tech)_\n   <https://www.theverge.com/transportation/912357/robotaxi-poll-ev-intelligence-report-waymo-tesla>\n8. **[Safety & Policy]** The Senate is voting to save free IRS Direct File today _(prio 0, The Verge Tech)_\n   <https://www.theverge.com/policy/912490/irs-direct-file-senate-vote>",
+  "items": [
+    {
+      "rank": 1,
+      "topic": "Model Releases",
+      "priority": 3,
+      "title": "Google launches a Gemini AI app on Mac",
+      "url": "https://www.theverge.com/tech/912638/google-gemini-mac-app",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T14:10:15-04:00"
+    },
+    {
+      "rank": 2,
+      "topic": "General",
+      "priority": 1,
+      "title": "Microsoft counters the MacBook Neo with freebies for students",
+      "url": "https://www.theverge.com/news/912639/microsoft-counters-the-macbook-neo-with-freebies-for-students",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T14:11:01-04:00"
+    },
+    {
+      "rank": 3,
+      "topic": "General",
+      "priority": 0,
+      "title": "Best Buy’s Ultimate Upgrade Sale features deals on dozens of our favorite gadgets",
+      "url": "https://www.theverge.com/gadgets/911853/best-buy-ultimate-upgrade-sale-2026-tech-deals-apple",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T13:04:34-04:00"
+    },
+    {
+      "rank": 4,
+      "topic": "General",
+      "priority": 0,
+      "title": "Ford’s EV and software chief Doug Field is leaving the company",
+      "url": "https://www.theverge.com/transportation/912647/ford-doug-field-leaving-ev-software",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T15:59:39-04:00"
+    },
+    {
+      "rank": 5,
+      "topic": "Safety & Policy",
+      "priority": 0,
+      "title": "FTC pushes ad agencies into dropping brand safety rules",
+      "url": "https://www.theverge.com/policy/912680/ftc-ad-agency-settlement-trust-safety",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T15:00:23-04:00"
+    },
+    {
+      "rank": 6,
+      "topic": "General",
+      "priority": 0,
+      "title": "Ikea&#8217;s smart donut lamp is a sweet treat",
+      "url": "https://www.theverge.com/tech/911809/ikea-varmblixt-smart-donut-lamp-review-matter-thread",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T14:30:55-04:00"
+    },
+    {
+      "rank": 7,
+      "topic": "General",
+      "priority": 0,
+      "title": "Most people still don’t want anything to do with robotaxis",
+      "url": "https://www.theverge.com/transportation/912357/robotaxi-poll-ev-intelligence-report-waymo-tesla",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T12:27:56-04:00"
+    },
+    {
+      "rank": 8,
+      "topic": "Safety & Policy",
+      "priority": 0,
+      "title": "The Senate is voting to save free IRS Direct File today",
+      "url": "https://www.theverge.com/policy/912490/irs-direct-file-senate-vote",
+      "source": "The Verge Tech",
+      "published": "2026-04-15T12:08:33-04:00"
+    }
+  ]
+}

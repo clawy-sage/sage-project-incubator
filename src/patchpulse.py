@@ -166,12 +166,36 @@ def render_discord_digest(items: list[dict], date: str, limit: int) -> str:
     return "\n".join(lines)
 
 
+def render_discord_payload(items: list[dict], date: str, limit: int) -> dict:
+    top = items[:limit]
+    message_text = render_discord_digest(items, date, limit)
+    return {
+        "type": "discord_message_payload",
+        "generated_at": f"{date}T00:00:00Z",
+        "date": date,
+        "item_count": len(top),
+        "message": message_text,
+        "items": [
+            {
+                "rank": idx,
+                "topic": it.get("topic", "General"),
+                "priority": int(it.get("priority", 0)),
+                "title": it.get("title", ""),
+                "url": it.get("url", ""),
+                "source": it.get("source", "unknown"),
+                "published": it.get("published", ""),
+            }
+            for idx, it in enumerate(top, 1)
+        ],
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="PatchPulse MVP")
     parser.add_argument("--sources", default="data/sources.json")
     parser.add_argument("--outdir", default="reports")
-    parser.add_argument("--format", choices=["markdown", "discord"], default="markdown")
-    parser.add_argument("--limit", type=int, default=8, help="Max items for discord digest")
+    parser.add_argument("--format", choices=["markdown", "discord", "discord-json"], default="markdown")
+    parser.add_argument("--limit", type=int, default=8, help="Max items for discord outputs")
     args = parser.parse_args()
 
     sources = load_sources(Path(args.sources))
@@ -190,14 +214,20 @@ def main() -> int:
     outdir = Path(args.outdir)
     outdir.mkdir(parents=True, exist_ok=True)
 
+    limit = max(args.limit, 1)
     if args.format == "markdown":
         report = outdir / f"{today}.md"
         report.write_text(render_report(ranked_items, today), encoding="utf-8")
         print(f"wrote {report}")
-    else:
+    elif args.format == "discord":
         digest = outdir / f"{today}-discord.txt"
-        digest.write_text(render_discord_digest(ranked_items, today, max(args.limit, 1)), encoding="utf-8")
+        digest.write_text(render_discord_digest(ranked_items, today, limit), encoding="utf-8")
         print(f"wrote {digest}")
+    else:
+        payload_file = outdir / f"{today}-discord.json"
+        payload = render_discord_payload(ranked_items, today, limit)
+        payload_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+        print(f"wrote {payload_file}")
 
     return 0
 

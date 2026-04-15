@@ -19,7 +19,7 @@
 - Optionales Discord-Digest-Format (`--format discord`)
 
 ### M4 – Nächster Inkrement-Fokus
-- Discord Digest direkt als Message-Payload exportieren (z. B. JSON für Bot-Posting)
+- [x] Discord Digest direkt als Message-Payload exportieren (z. B. JSON für Bot-Posting)
 - Basis-Tests für Parser, Scoring und Rendering ergänzen
 
 ## Autonomie-Regel

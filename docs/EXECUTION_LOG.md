@@ -26,6 +26,26 @@
 - Nächster Schritt:
   - JSON/Payload-Export für direktes Bot-Posting + kleine Test-Suite für Parsing/Scoring.
 
+### Zusatzinkrement (später am 2026-04-15)
+
+- Notion To-Do Inbox erneut geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Nächstes Inkrement: JSON/Payload-Export für Discord + Basis-Tests für Topic-/Priority-Scoring ergänzen.`
+- Umsetzung in diesem Inkrement (bewusst auf **einen** Schritt begrenzt):
+  - `src/patchpulse.py` erweitert um neues Ausgabeformat `--format discord-json`
+  - neue Funktion `render_discord_payload(...)` erzeugt strukturierte JSON-Ausgabe mit:
+    - `message` (fertiger Digest-Text)
+    - `items` (rank/topic/priority/title/url/source/published)
+    - Metadaten (`type`, `date`, `generated_at`, `item_count`)
+  - Doku aktualisiert:
+    - `README.md` (Nutzung + Status)
+    - `docs/PLAN.md` (Payload-Export als erledigt markiert)
+- Warum diese Änderung:
+  - Schafft eine direkte Bridge von PatchPulse zu Bot-Posting ohne manuellen Text-Zwischenschritt.
+  - Entkoppelt Rendering (Text) von Transport (Payload) für spätere Automatisierung.
+- Nächster Schritt:
+  - Basis-Tests für Topic-/Priority-Scoring und Rendering ergänzen.
+
 ## 2026-04-11
 
 - Notion To-Do hinzugefügt:

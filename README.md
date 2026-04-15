@@ -29,11 +29,13 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Keyword-basiertes Themen-Clustering (z. B. Model Releases, Tooling, Safety)
 - Priority-Scoring für wichtigere Meldungen
 - Optionales Discord-Digest-Output via `--format discord`
+- Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
 
 ## Nutzung
 ```bash
 python3 src/patchpulse.py --format markdown
 python3 src/patchpulse.py --format discord --limit 8
+python3 src/patchpulse.py --format discord-json --limit 8
 ```
 
 ## Status
@@ -41,4 +43,5 @@ python3 src/patchpulse.py --format discord --limit 8
 - [x] Architektur + Plan dokumentiert
 - [x] MVP Codegerüst angelegt
 - [x] v0.2-Inkrement: Clustering + Priorisierung + Discord-Digest
+- [x] v0.2-Inkrement: Discord JSON/Payload-Export
 - [x] GitHub-Remote erstellt & aktueller Stand gepusht
