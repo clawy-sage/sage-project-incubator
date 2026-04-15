@@ -41,4 +41,4 @@ python3 src/patchpulse.py --format discord --limit 8
 - [x] Architektur + Plan dokumentiert
 - [x] MVP Codegerüst angelegt
 - [x] v0.2-Inkrement: Clustering + Priorisierung + Discord-Digest
-- [ ] GitHub-Remote erstellen & pushen (wartet auf GitHub Auth)
+- [x] GitHub-Remote erstellt & aktueller Stand gepusht

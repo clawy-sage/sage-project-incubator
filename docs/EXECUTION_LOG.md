@@ -20,6 +20,9 @@
 - Warum diese Änderung:
   - Erhöht Signal-zu-Rauschen im täglichen Output.
   - Macht PatchPulse direkt nutzbar für Discord-Workflows ohne manuelles Umformatieren.
+- Git:
+  - Commit: `b26632a`
+  - Push: `master` -> `origin/master` erfolgreich
 - Nächster Schritt:
   - JSON/Payload-Export für direktes Bot-Posting + kleine Test-Suite für Parsing/Scoring.
 
