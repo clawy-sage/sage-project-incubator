@@ -44,4 +44,5 @@ python3 src/patchpulse.py --format discord-json --limit 8
 - [x] MVP Codegerüst angelegt
 - [x] v0.2-Inkrement: Clustering + Priorisierung + Discord-Digest
 - [x] v0.2-Inkrement: Discord JSON/Payload-Export
+- [x] v0.2-Inkrement: Basis-Tests für Topic-/Priority-/Payload-Logik
 - [x] GitHub-Remote erstellt & aktueller Stand gepusht

@@ -1,5 +1,26 @@
 # Execution Log
 
+## 2026-04-16
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Basis-Tests für classify_topic(), score_priority(), render_discord_payload() hinzufügen und CI-Run dokumentieren.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - Neues Testmodul angelegt: `tests/test_patchpulse.py`
+  - 4 Basis-Tests implementiert für:
+    - `classify_topic()` (Treffer + Fallback)
+    - `score_priority()` (Keyword-Scoring)
+    - `render_discord_payload()` (Shape + Limit + Ranking)
+  - Testlauf durchgeführt: `python3 -m unittest discover -s tests -v` → **OK (4/4)**
+  - Doku aktualisiert:
+    - `docs/PLAN.md` (Tests als erledigt markiert, M5 ergänzt)
+    - `README.md` (Test-Inkrement im Status ergänzt)
+- Warum diese Änderung:
+  - Stabilisiert die Kernlogik gegen Regressionen bei weiteren Inkrementen.
+  - Schafft eine verlässliche Basis für den nächsten Schritt (CI-Automatisierung).
+- Nächster Schritt:
+  - GitHub Actions Workflow hinzufügen, der die Tests bei Push/PR automatisch ausführt.
+
 ## 2026-04-15
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

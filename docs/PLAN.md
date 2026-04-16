@@ -20,7 +20,11 @@
 
 ### M4 – Nächster Inkrement-Fokus
 - [x] Discord Digest direkt als Message-Payload exportieren (z. B. JSON für Bot-Posting)
-- Basis-Tests für Parser, Scoring und Rendering ergänzen
+- [x] Basis-Tests für Topic-Klassifizierung, Priority-Scoring und Payload-Rendering ergänzen
+
+### M5 – Als Nächstes
+- Parsing-Robustheit erhöhen (fehlende/defekte Feed-Felder explizit testen)
+- Optionalen CI-Workflow (GitHub Actions) für automatischen Testlauf ergänzen
 
 ## Autonomie-Regel
 Wenn eine Idee sinnvoll und machbar wirkt, wird sie hier umgesetzt und dokumentiert.
