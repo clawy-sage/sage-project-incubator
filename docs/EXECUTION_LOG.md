@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-16 (CareerPulse Iteration 1)
+
+- User-Feedback verarbeitet: Fokus nicht mehr Uni, sondern post-Bachelor Karriere/Opportunities.
+- Neues Projekt als zweiter Inkubator-Track gestartet: **CareerPulse**.
+- Umsetzung in diesem Inkrement (ein konkreter Schritt):
+  - `src/careerpulse.py` erstellt mit Ranking-Engine:
+    - Skill-Match (Keyword-Hits)
+    - Remote-Fit (remote/hybrid/onsite)
+    - Seniority-Fit (junior/mid/…)
+    - nachvollziehbare `reasons` pro Opportunity
+  - `data/careerpulse_sample.json` als Start-Dataset ergänzt.
+  - Reports erzeugt:
+    - `reports/careerpulse-2026-04-16.md`
+    - `reports/careerpulse-2026-04-16.json`
+  - Doku aktualisiert:
+    - `README.md` (zweites Projekt + Nutzung)
+    - `docs/PLAN.md` (Track B + nächste Schritte)
+- Warum diese Änderung:
+  - Passt direkt zu Fubsis aktueller Lebensphase (Bachelor abgeschlossen) und Tech-Stack.
+  - Schafft eine sofort nutzbare Basis für Opportunity-Scouting + spätere Automatisierung.
+- Nächster Schritt:
+  - Quellen-Adapter für echte Jobfeeds + Profilkonfig als Datei ergänzen.
+
 ## 2026-04-16
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

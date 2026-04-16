@@ -1,0 +1,99 @@
+{
+  "date": "2026-04-16",
+  "results": [
+    {
+      "title": "Junior AI Engineer (LLM Tooling)",
+      "company": "Nova Labs",
+      "level": "junior",
+      "remote": "remote",
+      "tags": [
+        "python",
+        "ai",
+        "llm",
+        "docker"
+      ],
+      "url": "https://example.com/jobs/nova-junior-ai",
+      "score": 11,
+      "details": {
+        "skill_hits": 3,
+        "level": "junior",
+        "remote": "remote",
+        "reasons": [
+          "skill-match: 3 keyword hit(s)",
+          "remote-fit: preferred hybrid/remote",
+          "seniority-fit: junior",
+          "focus-bonus: AI/ML"
+        ]
+      }
+    },
+    {
+      "title": "ML Platform Engineer",
+      "company": "CloudTensor",
+      "level": "senior",
+      "remote": "hybrid",
+      "tags": [
+        "python",
+        "machine learning",
+        "kubernetes",
+        "docker"
+      ],
+      "url": "https://example.com/jobs/cloudtensor-ml-platform",
+      "score": 9,
+      "details": {
+        "skill_hits": 3,
+        "level": "senior",
+        "remote": "hybrid",
+        "reasons": [
+          "skill-match: 3 keyword hit(s)",
+          "remote-fit: preferred hybrid/remote",
+          "focus-bonus: AI/ML"
+        ]
+      }
+    },
+    {
+      "title": "Backend Developer (Node.js, Express)",
+      "company": "WebForge",
+      "level": "mid",
+      "remote": "hybrid",
+      "tags": [
+        "node.js",
+        "javascript",
+        "express",
+        "api"
+      ],
+      "url": "https://example.com/jobs/webforge-backend",
+      "score": 8,
+      "details": {
+        "skill_hits": 2,
+        "level": "mid",
+        "remote": "hybrid",
+        "reasons": [
+          "skill-match: 2 keyword hit(s)",
+          "remote-fit: preferred hybrid/remote",
+          "seniority-fit: mid"
+        ]
+      }
+    },
+    {
+      "title": "Data Analyst",
+      "company": "MetricWorks",
+      "level": "mid",
+      "remote": "onsite",
+      "tags": [
+        "sql",
+        "excel",
+        "reporting"
+      ],
+      "url": "https://example.com/jobs/metricworks-analyst",
+      "score": 2,
+      "details": {
+        "skill_hits": 0,
+        "level": "mid",
+        "remote": "onsite",
+        "reasons": [
+          "seniority-fit: mid"
+        ]
+      }
+    }
+  ]
+}

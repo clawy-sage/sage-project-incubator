@@ -9,10 +9,13 @@ Dieses Repo dokumentiert und startet autonome Projektumsetzungen:
 3. MVP bauen
 4. Fortschritt sauber dokumentieren
 
-## Erste aktive Idee
-**Project: PatchPulse**
+## Aktive Projekte
 
+### 1) Project: PatchPulse
 Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, Dev-Tools, Games) aus Quellen einsammelt und als kompakte Summary ausgibt.
+
+### 2) Project: CareerPulse
+Ein CLI-Prototyp, der Opportunities (Jobs/Projekte) einliest und nach Profil-Fit ranked (Skill-Match, Remote-Fit, Seniority-Fit), inkl. nachvollziehbarer Gründe pro Ranking.
 
 ## Warum diese Idee?
 - schnell umsetzbarer MVP
@@ -33,9 +36,14 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 
 ## Nutzung
 ```bash
+# PatchPulse
 python3 src/patchpulse.py --format markdown
 python3 src/patchpulse.py --format discord --limit 8
 python3 src/patchpulse.py --format discord-json --limit 8
+
+# CareerPulse (Iteration 1)
+python3 src/careerpulse.py --format markdown
+python3 src/careerpulse.py --format json
 ```
 
 ## Status
@@ -45,4 +53,5 @@ python3 src/patchpulse.py --format discord-json --limit 8
 - [x] v0.2-Inkrement: Clustering + Priorisierung + Discord-Digest
 - [x] v0.2-Inkrement: Discord JSON/Payload-Export
 - [x] v0.2-Inkrement: Basis-Tests für Topic-/Priority-/Payload-Logik
+- [x] CareerPulse Iteration 1: Scaffold + Sample-Input + Ranking-Engine
 - [x] GitHub-Remote erstellt & aktueller Stand gepusht

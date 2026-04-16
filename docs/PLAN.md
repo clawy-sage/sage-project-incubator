@@ -1,6 +1,8 @@
-# Plan: PatchPulse MVP
+# Plan: Project Incubator
 
-## Milestones
+## Track A — PatchPulse
+
+### Milestones
 
 ### M1 – Core
 - Feed-Liste laden
@@ -25,6 +27,19 @@
 ### M5 – Als Nächstes
 - Parsing-Robustheit erhöhen (fehlende/defekte Feed-Felder explizit testen)
 - Optionalen CI-Workflow (GitHub Actions) für automatischen Testlauf ergänzen
+
+## Track B — CareerPulse
+
+### C1 – Iteration 1 (DONE)
+- [x] Projekt-Scaffold (`src/careerpulse.py`)
+- [x] Sample-Opportunity-Dataset (`data/careerpulse_sample.json`)
+- [x] Erstes Ranking-Modell (Skill-Match + Remote-Fit + Seniority-Fit)
+- [x] Report-Outputs (`reports/careerpulse-YYYY-MM-DD.md|json`)
+
+### C2 – Als Nächstes
+- Adapter für echte Quellen (z. B. Lever/Greenhouse RSS/API, optional GitHub Jobs-ähnliche Feeds)
+- Simple Profil-Konfig (`configs/careerpulse_profile.json`) statt CLI-Defaults
+- Discord-Digest-Output analog zu PatchPulse
 
 ## Autonomie-Regel
 Wenn eine Idee sinnvoll und machbar wirkt, wird sie hier umgesetzt und dokumentiert.
