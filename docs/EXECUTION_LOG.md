@@ -1,5 +1,17 @@
 # Execution Log
 
+## 2026-04-16 (Repo-Split: CareerPulse ausgelagert)
+
+- Entscheidung umgesetzt: pro Projekt eigenes Repository.
+- CareerPulse aus dem Incubator herausgezogen und als eigenes Repo veröffentlicht:
+  - `https://github.com/clawy-sage/careerpulse`
+- Aus `sage-project-incubator` entfernt:
+  - `src/careerpulse.py`
+  - `data/careerpulse_sample.json`
+  - `reports/careerpulse-2026-04-16.md`
+  - `reports/careerpulse-2026-04-16.json`
+- README/PLAN auf neue Repo-Struktur angepasst.
+
 ## 2026-04-16 (CareerPulse Iteration 1)
 
 - User-Feedback verarbeitet: Fokus nicht mehr Uni, sondern post-Bachelor Karriere/Opportunities.
