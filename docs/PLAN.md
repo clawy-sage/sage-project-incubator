@@ -25,8 +25,9 @@
 - [x] Basis-Tests für Topic-Klassifizierung, Priority-Scoring und Payload-Rendering ergänzen
 
 ### M5 – Als Nächstes
+- [x] Optionalen CI-Workflow (GitHub Actions) für automatischen Testlauf ergänzen
 - Parsing-Robustheit erhöhen (fehlende/defekte Feed-Felder explizit testen)
-- Optionalen CI-Workflow (GitHub Actions) für automatischen Testlauf ergänzen
+- Feed-Fetching robuster machen (Timeout-/HTTP-Fehler explizit behandeln und testbar kapseln)
 
 ## Track B — ausgelagert
 

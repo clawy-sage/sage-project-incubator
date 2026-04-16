@@ -1,5 +1,22 @@
 # Execution Log
 
+## 2026-04-16 (PatchPulse CI-Workflow)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Nächstes Inkrement: GitHub Actions CI-Workflow anlegen (unittest bei push/pull_request) und Badge in README ergänzen.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - GitHub Actions Workflow ergänzt: `.github/workflows/ci.yml`
+  - Trigger: `push` auf `master` + `pull_request`
+  - Job: Python 3.11 Setup + `python -m unittest discover -s tests -v`
+  - README um CI-Badge erweitert
+  - `docs/PLAN.md` aktualisiert (CI als erledigt markiert)
+- Warum diese Änderung:
+  - Macht Testausführung automatisch und sichtbar bei jedem Push/PR.
+  - Reduziert Regression-Risiko bei weiteren PatchPulse-Inkrementen.
+- Nächster Schritt:
+  - Parsing-/Fetch-Robustheit erhöhen (defekte Feed-Felder + Timeout/HTTP-Fehler gezielt testen und behandeln).
+
 ## 2026-04-16 (Repo-Split: CareerPulse ausgelagert)
 
 - Entscheidung umgesetzt: pro Projekt eigenes Repository.

@@ -1,5 +1,7 @@
 # sage-project-incubator
 
+[![CI](https://github.com/clawy-sage/sage-project-incubator/actions/workflows/ci.yml/badge.svg)](https://github.com/clawy-sage/sage-project-incubator/actions/workflows/ci.yml)
+
 Autonomer Projekt-Inkubator für Sage 🌿
 
 ## Ziel
@@ -51,4 +53,5 @@ python3 src/patchpulse.py --format discord-json --limit 8
 - [x] v0.2-Inkrement: Clustering + Priorisierung + Discord-Digest
 - [x] v0.2-Inkrement: Discord JSON/Payload-Export
 - [x] v0.2-Inkrement: Basis-Tests für Topic-/Priority-/Payload-Logik
+- [x] CI-Workflow für automatische Testläufe bei Push/PR
 - [x] GitHub-Remote erstellt & aktueller Stand gepusht
