@@ -54,6 +54,14 @@ class PatchPulseCoreTests(unittest.TestCase):
             items = patchpulse.fetch_feed("Broken Feed", "https://example.com/rss")
         self.assertEqual(items, [])
 
+    def test_fetch_feed_with_stats_reports_transport_error(self):
+        with patch("patchpulse.urlopen", side_effect=URLError("boom")):
+            items, stats = patchpulse.fetch_feed_with_stats("Broken Feed", "https://example.com/rss")
+
+        self.assertEqual(items, [])
+        self.assertEqual(stats["status"], "error")
+        self.assertEqual(stats["error"], "URLError")
+
     def test_fetch_feed_skips_items_with_missing_fields(self):
         rss = b"""<?xml version='1.0' encoding='UTF-8'?>
 <rss><channel>
@@ -63,10 +71,13 @@ class PatchPulseCoreTests(unittest.TestCase):
 </channel></rss>
 """
         with patch("patchpulse.urlopen", return_value=_FakeResponse(rss)):
-            items = patchpulse.fetch_feed("RSS", "https://example.com/rss")
+            items, stats = patchpulse.fetch_feed_with_stats("RSS", "https://example.com/rss")
 
         self.assertEqual(len(items), 1)
         self.assertEqual(items[0]["title"], "Valid")
+        self.assertEqual(stats["status"], "ok")
+        self.assertEqual(stats["items"], 1)
+        self.assertEqual(stats["skipped"], 2)
 
     def test_fetch_feed_atom_prefers_alternate_link(self):
         atom = b"""<?xml version='1.0' encoding='UTF-8'?>
@@ -113,6 +124,20 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(payload["items"][0]["rank"], 1)
         self.assertEqual(payload["items"][0]["title"], "Critical security update")
         self.assertIn("PatchPulse Digest", payload["message"])
+
+    def test_render_report_includes_source_summary(self):
+        report = patchpulse.render_report(
+            [],
+            "2026-04-17",
+            source_stats=[
+                {"source": "Feed A", "status": "ok", "items": 2, "skipped": 1},
+                {"source": "Feed B", "status": "error", "error": "URLError"},
+            ],
+        )
+
+        self.assertIn("## Source Summary", report)
+        self.assertIn("Feed A: items=2, skipped=1", report)
+        self.assertIn("Feed B: ERROR (URLError)", report)
 
 
 if __name__ == "__main__":

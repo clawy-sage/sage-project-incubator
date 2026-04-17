@@ -35,19 +35,9 @@ def load_sources(path: Path) -> list[dict]:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def fetch_feed(source_name: str, url: str) -> list[dict]:
-    try:
-        with urlopen(url, timeout=20) as resp:
-            raw = resp.read()
-    except (HTTPError, URLError, TimeoutError, ValueError):
-        return []
-
-    try:
-        root = ET.fromstring(raw)
-    except ET.ParseError:
-        return []
-
+def _extract_items_from_root(root: ET.Element, source_name: str) -> tuple[list[dict], int]:
     items: list[dict] = []
+    skipped = 0
 
     for item in root.findall(".//item"):
         title = (item.findtext("title") or "").strip()
@@ -62,6 +52,8 @@ def fetch_feed(source_name: str, url: str) -> list[dict]:
                     "source": source_name,
                 }
             )
+        else:
+            skipped += 1
 
     ns = {"a": "http://www.w3.org/2005/Atom"}
     for entry in root.findall(".//a:entry", ns):
@@ -91,7 +83,38 @@ def fetch_feed(source_name: str, url: str) -> list[dict]:
                     "source": source_name,
                 }
             )
+        else:
+            skipped += 1
 
+    return items, skipped
+
+
+def fetch_feed_with_stats(source_name: str, url: str) -> tuple[list[dict], dict]:
+    stats = {"source": source_name, "items": 0, "skipped": 0, "status": "ok", "error": ""}
+
+    try:
+        with urlopen(url, timeout=20) as resp:
+            raw = resp.read()
+    except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+        stats["status"] = "error"
+        stats["error"] = type(exc).__name__
+        return [], stats
+
+    try:
+        root = ET.fromstring(raw)
+    except ET.ParseError:
+        stats["status"] = "error"
+        stats["error"] = "ParseError"
+        return [], stats
+
+    items, skipped = _extract_items_from_root(root, source_name)
+    stats["items"] = len(items)
+    stats["skipped"] = skipped
+    return items, stats
+
+
+def fetch_feed(source_name: str, url: str) -> list[dict]:
+    items, _ = fetch_feed_with_stats(source_name, url)
     return items
 
 
@@ -143,8 +166,23 @@ def sort_items(items: list[dict]) -> list[dict]:
     return sorted(items, key=lambda it: (-int(it.get("priority", 0)), it.get("title", "").lower()))
 
 
-def render_report(items: list[dict], date: str) -> str:
+def render_source_summary(source_stats: list[dict]) -> list[str]:
+    lines = ["## Source Summary", ""]
+    for st in source_stats:
+        if st.get("status") == "error":
+            lines.append(f"- {st['source']}: ERROR ({st.get('error', 'UnknownError')})")
+        else:
+            lines.append(f"- {st['source']}: items={st.get('items', 0)}, skipped={st.get('skipped', 0)}")
+    lines.append("")
+    return lines
+
+
+def render_report(items: list[dict], date: str, source_stats: list[dict] | None = None) -> str:
     lines = [f"# PatchPulse Report – {date}", ""]
+
+    if source_stats:
+        lines.extend(render_source_summary(source_stats))
+
     if not items:
         return "\n".join(lines + ["Keine neuen Items gefunden.", ""])
 
@@ -208,6 +246,15 @@ def render_discord_payload(items: list[dict], date: str, limit: int) -> dict:
     }
 
 
+def print_source_summary(source_stats: list[dict]) -> None:
+    print("source summary:")
+    for st in source_stats:
+        if st.get("status") == "error":
+            print(f"- {st['source']}: ERROR ({st.get('error', 'UnknownError')})")
+        else:
+            print(f"- {st['source']}: items={st.get('items', 0)}, skipped={st.get('skipped', 0)}")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="PatchPulse MVP")
     parser.add_argument("--sources", default="data/sources.json")
@@ -218,8 +265,12 @@ def main() -> int:
 
     sources = load_sources(Path(args.sources))
     all_items: list[dict] = []
+    source_stats: list[dict] = []
     for s in sources:
-        all_items.extend(fetch_feed(s.get("name", "unknown"), s["url"]))
+        source_name = s.get("name", "unknown")
+        items, stats = fetch_feed_with_stats(source_name, s["url"])
+        all_items.extend(items)
+        source_stats.append(stats)
 
     unique_items = dedup(all_items)
     enriched_items = enrich(unique_items)
@@ -232,7 +283,7 @@ def main() -> int:
     limit = max(args.limit, 1)
     if args.format == "markdown":
         report = outdir / f"{today}.md"
-        report.write_text(render_report(ranked_items, today), encoding="utf-8")
+        report.write_text(render_report(ranked_items, today, source_stats), encoding="utf-8")
         print(f"wrote {report}")
     elif args.format == "discord":
         digest = outdir / f"{today}-discord.txt"
@@ -244,6 +295,7 @@ def main() -> int:
         payload_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"wrote {payload_file}")
 
+    print_source_summary(source_stats)
     return 0
 
 

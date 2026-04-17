@@ -28,7 +28,7 @@
 - [x] Optionalen CI-Workflow (GitHub Actions) für automatischen Testlauf ergänzen
 - [x] Parsing-Robustheit erhöhen (fehlende/defekte Feed-Felder explizit testen)
 - [x] Feed-Fetching robuster machen (Timeout-/HTTP-Fehler explizit behandeln und testbar kapseln)
-- Feed-Observability ergänzen (pro Source Fehler/Skip-Statistik + kompakte Summary im Report/CLI)
+- [x] Feed-Observability ergänzen (pro Source Fehler/Skip-Statistik + kompakte Summary im Report/CLI)
 
 ## Track B — ausgelagert
 

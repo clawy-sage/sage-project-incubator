@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-17 (PatchPulse Feed-Observability)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Feed-Observability ergänzen (pro Source Fehler/Skip-Statistik + kompakte Summary im Report/CLI) und mit Tests absichern.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert um source-level Observability:
+    - Neues `fetch_feed_with_stats(...)` liefert pro Quelle `status`, `error`, `items`, `skipped`.
+    - Report enthält jetzt `## Source Summary` mit OK-/ERROR-Status je Source.
+    - CLI gibt eine kompakte `source summary` nach jedem Lauf aus (auch bei Discord/JSON-Output).
+    - Bestehendes `fetch_feed(...)` bleibt kompatibel als Wrapper erhalten.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Fehlerstatus wird in Stats korrekt erfasst (`URLError`).
+    - Skip-Zähler bei unvollständigen Feed-Items wird geprüft.
+    - Report-Summary wird auf erwartete Observability-Zeilen getestet.
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (9/9)**
+  - `docs/PLAN.md` und `README.md` aktualisiert.
+- Warum diese Änderung:
+  - Macht Feed-Probleme direkt sichtbar, statt nur stillschweigend leere Ergebnisse zu liefern.
+  - Verbessert Diagnosefähigkeit für Cron-Läufe ohne zusätzliches Debugging.
+- Nächster Schritt:
+  - Discord-JSON-Payload optional um Source-Observability-Block erweitern (für Downstream-Automation/Alerts).
+
 ## 2026-04-17 (PatchPulse Fetch/Parsing-Robustheit)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

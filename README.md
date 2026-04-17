@@ -55,3 +55,4 @@ python3 src/patchpulse.py --format discord-json --limit 8
 - [x] v0.2-Inkrement: Basis-Tests für Topic-/Priority-/Payload-Logik
 - [x] CI-Workflow für automatische Testläufe bei Push/PR
 - [x] GitHub-Remote erstellt & aktueller Stand gepusht
+- [x] Feed-Observability: pro Quelle Fehler/Skip-Statistik + Source Summary im Report/CLI
