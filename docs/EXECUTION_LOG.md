@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-17 (PatchPulse Fetch/Parsing-Robustheit)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Feed-Fetching robust machen (Timeout/HTTP-Fehler behandeln) + gezielte Tests für defekte/missing Feed-Felder ergänzen.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` gehärtet:
+    - `fetch_feed()` behandelt jetzt gezielt `HTTPError`, `URLError`, `TimeoutError`, `ValueError` und liefert in Fehlerfällen stabil `[]` statt Exceptions nach oben zu werfen.
+    - XML-Parsingfehler (`ET.ParseError`) werden abgefangen.
+    - Atom-Link-Auswahl verbessert: bevorzugt `rel="alternate"`, mit sauberem Fallback.
+  - `main()` vereinfacht: kein pauschales `try/except Exception` mehr um `fetch_feed()`, da Fehlerbehandlung in `fetch_feed()` testbar gekapselt ist.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Transportfehler -> leere Item-Liste
+    - RSS mit fehlenden Feldern -> invalide Items werden übersprungen
+    - Atom mit mehreren Links -> `alternate` wird bevorzugt
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (7/7)**
+  - `docs/PLAN.md` aktualisiert (M5-Robustheitsziele als erledigt markiert).
+- Warum diese Änderung:
+  - Verhindert, dass einzelne kaputte oder temporär nicht erreichbare Feeds den gesamten Lauf instabil machen.
+  - Macht das Fehlerverhalten deterministisch und über Unit-Tests abgesichert.
+- Nächster Schritt:
+  - Feed-Observability ergänzen (pro Source Fehler/Skip-Statistik + kompakte Summary im Report/CLI).
+
 ## 2026-04-16 (PatchPulse CI-Workflow)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

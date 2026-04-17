@@ -1,12 +1,28 @@
 import pathlib
 import sys
 import unittest
+from unittest.mock import patch
+from urllib.error import URLError
 
 # Allow importing from src/
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "src"))
 
 import patchpulse  # noqa: E402
+
+
+class _FakeResponse:
+    def __init__(self, payload: bytes):
+        self._payload = payload
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc, tb):
+        return False
+
+    def read(self):
+        return self._payload
 
 
 class PatchPulseCoreTests(unittest.TestCase):
@@ -32,6 +48,41 @@ class PatchPulseCoreTests(unittest.TestCase):
         }
         # new(1) + api(1) + launch(3) + security(2) + update(1) = 8
         self.assertEqual(patchpulse.score_priority(item), 8)
+
+    def test_fetch_feed_returns_empty_on_transport_error(self):
+        with patch("patchpulse.urlopen", side_effect=URLError("boom")):
+            items = patchpulse.fetch_feed("Broken Feed", "https://example.com/rss")
+        self.assertEqual(items, [])
+
+    def test_fetch_feed_skips_items_with_missing_fields(self):
+        rss = b"""<?xml version='1.0' encoding='UTF-8'?>
+<rss><channel>
+  <item><title>Valid</title><link>https://example.com/valid</link></item>
+  <item><title>No link</title></item>
+  <item><link>https://example.com/no-title</link></item>
+</channel></rss>
+"""
+        with patch("patchpulse.urlopen", return_value=_FakeResponse(rss)):
+            items = patchpulse.fetch_feed("RSS", "https://example.com/rss")
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["title"], "Valid")
+
+    def test_fetch_feed_atom_prefers_alternate_link(self):
+        atom = b"""<?xml version='1.0' encoding='UTF-8'?>
+<feed xmlns='http://www.w3.org/2005/Atom'>
+  <entry>
+    <title>Atom entry</title>
+    <link rel='self' href='https://example.com/self'/>
+    <link rel='alternate' href='https://example.com/alternate'/>
+  </entry>
+</feed>
+"""
+        with patch("patchpulse.urlopen", return_value=_FakeResponse(atom)):
+            items = patchpulse.fetch_feed("Atom", "https://example.com/atom")
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["url"], "https://example.com/alternate")
 
     def test_render_discord_payload_shape_and_limit(self):
         items = [

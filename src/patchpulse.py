@@ -7,6 +7,7 @@ import hashlib
 import json
 from pathlib import Path
 import xml.etree.ElementTree as ET
+from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
 
 
@@ -35,9 +36,17 @@ def load_sources(path: Path) -> list[dict]:
 
 
 def fetch_feed(source_name: str, url: str) -> list[dict]:
-    with urlopen(url, timeout=20) as resp:
-        raw = resp.read()
-    root = ET.fromstring(raw)
+    try:
+        with urlopen(url, timeout=20) as resp:
+            raw = resp.read()
+    except (HTTPError, URLError, TimeoutError, ValueError):
+        return []
+
+    try:
+        root = ET.fromstring(raw)
+    except ET.ParseError:
+        return []
+
     items: list[dict] = []
 
     for item in root.findall(".//item"):
@@ -57,8 +66,17 @@ def fetch_feed(source_name: str, url: str) -> list[dict]:
     ns = {"a": "http://www.w3.org/2005/Atom"}
     for entry in root.findall(".//a:entry", ns):
         title = (entry.findtext("a:title", default="", namespaces=ns) or "").strip()
-        link_el = entry.find("a:link", ns)
-        link = (link_el.attrib.get("href", "") if link_el is not None else "").strip()
+        link = ""
+        for link_el in entry.findall("a:link", ns):
+            rel = (link_el.attrib.get("rel") or "alternate").strip().lower()
+            href = (link_el.attrib.get("href") or "").strip()
+            if not href:
+                continue
+            if rel == "alternate":
+                link = href
+                break
+            if not link:
+                link = href
         pub = (
             entry.findtext("a:updated", default="", namespaces=ns)
             or entry.findtext("a:published", default="", namespaces=ns)
@@ -201,10 +219,7 @@ def main() -> int:
     sources = load_sources(Path(args.sources))
     all_items: list[dict] = []
     for s in sources:
-        try:
-            all_items.extend(fetch_feed(s.get("name", "unknown"), s["url"]))
-        except Exception:
-            continue
+        all_items.extend(fetch_feed(s.get("name", "unknown"), s["url"]))
 
     unique_items = dedup(all_items)
     enriched_items = enrich(unique_items)
