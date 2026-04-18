@@ -222,10 +222,13 @@ def render_discord_digest(items: list[dict], date: str, limit: int) -> str:
     return "\n".join(lines)
 
 
-def render_discord_payload(items: list[dict], date: str, limit: int) -> dict:
+def render_discord_payload(
+    items: list[dict], date: str, limit: int, source_stats: list[dict] | None = None
+) -> dict:
     top = items[:limit]
     message_text = render_discord_digest(items, date, limit)
-    return {
+
+    payload = {
         "type": "discord_message_payload",
         "generated_at": f"{date}T00:00:00Z",
         "date": date,
@@ -244,6 +247,26 @@ def render_discord_payload(items: list[dict], date: str, limit: int) -> dict:
             for idx, it in enumerate(top, 1)
         ],
     }
+
+    if source_stats is not None:
+        payload["source_summary"] = [
+            {
+                "source": st.get("source", "unknown"),
+                "status": st.get("status", "ok"),
+                "items": int(st.get("items", 0) or 0),
+                "skipped": int(st.get("skipped", 0) or 0),
+                "error": st.get("error", ""),
+            }
+            for st in source_stats
+        ]
+        payload["source_summary_totals"] = {
+            "sources": len(source_stats),
+            "errors": sum(1 for st in source_stats if st.get("status") == "error"),
+            "items": sum(int(st.get("items", 0) or 0) for st in source_stats),
+            "skipped": sum(int(st.get("skipped", 0) or 0) for st in source_stats),
+        }
+
+    return payload
 
 
 def print_source_summary(source_stats: list[dict]) -> None:
@@ -291,7 +314,7 @@ def main() -> int:
         print(f"wrote {digest}")
     else:
         payload_file = outdir / f"{today}-discord.json"
-        payload = render_discord_payload(ranked_items, today, limit)
+        payload = render_discord_payload(ranked_items, today, limit, source_stats=source_stats)
         payload_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"wrote {payload_file}")
 

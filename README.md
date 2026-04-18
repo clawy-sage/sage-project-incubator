@@ -36,6 +36,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Priority-Scoring für wichtigere Meldungen
 - Optionales Discord-Digest-Output via `--format discord`
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
+- Discord-JSON enthält jetzt optional `source_summary` + `source_summary_totals` für Downstream-Alerts/Automation
 
 ## Nutzung
 ```bash
@@ -56,3 +57,4 @@ python3 src/patchpulse.py --format discord-json --limit 8
 - [x] CI-Workflow für automatische Testläufe bei Push/PR
 - [x] GitHub-Remote erstellt & aktueller Stand gepusht
 - [x] Feed-Observability: pro Quelle Fehler/Skip-Statistik + Source Summary im Report/CLI
+- [x] Discord-JSON erweitert um Source-Observability (`source_summary`, `source_summary_totals`)

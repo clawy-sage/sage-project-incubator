@@ -1,5 +1,27 @@
 # Execution Log
 
+## 2026-04-18 (PatchPulse Discord-JSON Source-Observability)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Discord-JSON Payload um Source-Observability erweitern (per-source status/error/items/skipped) + Tests für Payload-Feldvalidierung ergänzen.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - `render_discord_payload(...)` akzeptiert jetzt optional `source_stats`.
+    - Payload enthält bei vorhandenen Stats jetzt `source_summary` (per Source: `status/error/items/skipped`) und `source_summary_totals` (sources/errors/items/skipped aggregiert).
+    - CLI-Pfad `--format discord-json` übergibt die im Lauf gesammelten `source_stats` direkt in den Payload.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Payload-Test deckt nun Source-Observability-Felder inkl. Totals explizit ab.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (9/9)**
+- Warum diese Änderung:
+  - Macht den JSON-Output nicht nur content-, sondern auch betrieblich verwertbar (Monitoring/Alerting über Feed-Qualität).
+  - Erlaubt Downstream-Automation, Fehlerquellen pro Feed ohne Parsing der Markdown-Reports zu erkennen.
+- Nächster Schritt:
+  - Source-Observability im Discord-Textdigest optional sichtbar machen (z. B. kurzer Footer mit Fehleranzahl/Source-Health).
+
 ## 2026-04-17 (PatchPulse Feed-Observability)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

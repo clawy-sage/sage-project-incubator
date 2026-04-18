@@ -114,8 +114,12 @@ class PatchPulseCoreTests(unittest.TestCase):
                 "published": "2026-04-16T09:00:00Z",
             },
         ]
+        source_stats = [
+            {"source": "Feed A", "status": "ok", "items": 2, "skipped": 1},
+            {"source": "Feed B", "status": "error", "items": 0, "skipped": 0, "error": "URLError"},
+        ]
 
-        payload = patchpulse.render_discord_payload(items, "2026-04-16", limit=1)
+        payload = patchpulse.render_discord_payload(items, "2026-04-16", limit=1, source_stats=source_stats)
 
         self.assertEqual(payload["type"], "discord_message_payload")
         self.assertEqual(payload["date"], "2026-04-16")
@@ -124,6 +128,15 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(payload["items"][0]["rank"], 1)
         self.assertEqual(payload["items"][0]["title"], "Critical security update")
         self.assertIn("PatchPulse Digest", payload["message"])
+
+        self.assertIn("source_summary", payload)
+        self.assertEqual(len(payload["source_summary"]), 2)
+        self.assertEqual(payload["source_summary"][1]["status"], "error")
+        self.assertEqual(payload["source_summary"][1]["error"], "URLError")
+        self.assertEqual(payload["source_summary_totals"]["sources"], 2)
+        self.assertEqual(payload["source_summary_totals"]["errors"], 1)
+        self.assertEqual(payload["source_summary_totals"]["items"], 2)
+        self.assertEqual(payload["source_summary_totals"]["skipped"], 1)
 
     def test_render_report_includes_source_summary(self):
         report = patchpulse.render_report(
