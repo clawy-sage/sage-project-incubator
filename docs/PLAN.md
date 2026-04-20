@@ -30,6 +30,7 @@
 - [x] Feed-Fetching robuster machen (Timeout-/HTTP-Fehler explizit behandeln und testbar kapseln)
 - [x] Feed-Observability ergänzen (pro Source Fehler/Skip-Statistik + kompakte Summary im Report/CLI)
 - [x] Discord-JSON Payload um Source-Observability erweitern (per-source status/error/items/skipped + totals)
+- [x] Discord-Textdigest optional um Source-Health-Footer erweitern (error count + betroffene Quellen)
 
 ## Track B — ausgelagert
 

@@ -152,6 +152,28 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertIn("Feed A: items=2, skipped=1", report)
         self.assertIn("Feed B: ERROR (URLError)", report)
 
+    def test_render_discord_digest_optionally_includes_source_health_footer(self):
+        digest = patchpulse.render_discord_digest(
+            [
+                {
+                    "topic": "Model Releases",
+                    "priority": 3,
+                    "title": "Major model launch",
+                    "url": "https://example.com/a",
+                    "source": "Feed A",
+                }
+            ],
+            "2026-04-20",
+            limit=3,
+            source_stats=[
+                {"source": "Feed A", "status": "ok", "items": 1, "skipped": 0},
+                {"source": "Feed B", "status": "error", "items": 0, "skipped": 0, "error": "URLError"},
+            ],
+            include_source_health=True,
+        )
+
+        self.assertIn("Feed health: 1 source with errors (Feed B)", digest)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -35,6 +35,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Keyword-basiertes Themen-Clustering (z. B. Model Releases, Tooling, Safety)
 - Priority-Scoring für wichtigere Meldungen
 - Optionales Discord-Digest-Output via `--format discord`
+- Optionaler Source-Health-Footer im Discord-Textdigest via `--source-health-footer`
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
 - Discord-JSON enthält jetzt optional `source_summary` + `source_summary_totals` für Downstream-Alerts/Automation
 
@@ -43,6 +44,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 # PatchPulse
 python3 src/patchpulse.py --format markdown
 python3 src/patchpulse.py --format discord --limit 8
+python3 src/patchpulse.py --format discord --limit 8 --source-health-footer
 python3 src/patchpulse.py --format discord-json --limit 8
 
 ```
@@ -58,3 +60,4 @@ python3 src/patchpulse.py --format discord-json --limit 8
 - [x] GitHub-Remote erstellt & aktueller Stand gepusht
 - [x] Feed-Observability: pro Quelle Fehler/Skip-Statistik + Source Summary im Report/CLI
 - [x] Discord-JSON erweitert um Source-Observability (`source_summary`, `source_summary_totals`)
+- [x] Discord-Textdigest kann optional Source-Health-Footer ausgeben (`--source-health-footer`)

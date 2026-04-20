@@ -205,7 +205,13 @@ def render_report(items: list[dict], date: str, source_stats: list[dict] | None 
     return "\n".join(lines)
 
 
-def render_discord_digest(items: list[dict], date: str, limit: int) -> str:
+def render_discord_digest(
+    items: list[dict],
+    date: str,
+    limit: int,
+    source_stats: list[dict] | None = None,
+    include_source_health: bool = False,
+) -> str:
     lines = [f"**PatchPulse Digest ({date})**", ""]
     if not items:
         lines.append("Keine neuen Items gefunden.")
@@ -218,6 +224,16 @@ def render_discord_digest(items: list[dict], date: str, limit: int) -> str:
             f" _(prio {it.get('priority', 0)}, {it.get('source', 'unknown')})_"
         )
         lines.append(f"   <{it['url']}>")
+
+    if include_source_health and source_stats is not None:
+        error_sources = [st.get("source", "unknown") for st in source_stats if st.get("status") == "error"]
+        lines.append("")
+        if error_sources:
+            names = ", ".join(error_sources)
+            label = "source" if len(error_sources) == 1 else "sources"
+            lines.append(f"⚠️ Feed health: {len(error_sources)} {label} with errors ({names})")
+        else:
+            lines.append("✅ Feed health: all sources OK")
 
     return "\n".join(lines)
 
@@ -284,6 +300,11 @@ def main() -> int:
     parser.add_argument("--outdir", default="reports")
     parser.add_argument("--format", choices=["markdown", "discord", "discord-json"], default="markdown")
     parser.add_argument("--limit", type=int, default=8, help="Max items for discord outputs")
+    parser.add_argument(
+        "--source-health-footer",
+        action="store_true",
+        help="Append source health footer in discord text output",
+    )
     args = parser.parse_args()
 
     sources = load_sources(Path(args.sources))
@@ -310,7 +331,16 @@ def main() -> int:
         print(f"wrote {report}")
     elif args.format == "discord":
         digest = outdir / f"{today}-discord.txt"
-        digest.write_text(render_discord_digest(ranked_items, today, limit), encoding="utf-8")
+        digest.write_text(
+            render_discord_digest(
+                ranked_items,
+                today,
+                limit,
+                source_stats=source_stats,
+                include_source_health=args.source_health_footer,
+            ),
+            encoding="utf-8",
+        )
         print(f"wrote {digest}")
     else:
         payload_file = outdir / f"{today}-discord.json"

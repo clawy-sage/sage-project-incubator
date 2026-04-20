@@ -1,5 +1,27 @@
 # Execution Log
 
+## 2026-04-20 (PatchPulse Discord Source-Health-Footer)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Discord-Textdigest optional um Source-Health-Footer erweitern (error count + betroffene Quellen) und mit Tests absichern.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - `render_discord_digest(...)` unterstützt jetzt optional `source_stats` + `include_source_health`.
+    - Neuer CLI-Flag `--source-health-footer` aktiviert den Footer im `--format discord` Output.
+    - Footer zeigt entweder Fehlerquellen kompakt an (`⚠️ ...`) oder den OK-Status (`✅ ...`).
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Neuer Test prüft Footer-Inhalt bei einer Fehlerquelle.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (10/10)**
+- Warum diese Änderung:
+  - Discord-Textdigest wird operativ nutzbarer, weil Feed-Qualität direkt sichtbar ist.
+  - Reduziert Kontextwechsel, da nicht mehr in Markdown-Report/JSON geschaut werden muss, um Fehlerquellen zu sehen.
+- Nächster Schritt:
+  - Optionalen `--source-health-mode` ergänzen (`errors-only` vs `always`), inkl. Tests für beide Modi.
+
 ## 2026-04-18 (PatchPulse Discord-JSON Source-Observability)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
