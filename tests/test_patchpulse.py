@@ -26,6 +26,17 @@ class _FakeResponse:
 
 
 class PatchPulseCoreTests(unittest.TestCase):
+    def test_has_source_errors_detects_error_status(self):
+        self.assertFalse(patchpulse.has_source_errors([{"source": "A", "status": "ok"}]))
+        self.assertTrue(
+            patchpulse.has_source_errors(
+                [
+                    {"source": "A", "status": "ok"},
+                    {"source": "B", "status": "error", "error": "URLError"},
+                ]
+            )
+        )
+
     def test_classify_topic_model_release(self):
         item = {
             "title": "Gemini model release for developers",
@@ -211,6 +222,32 @@ class PatchPulseCoreTests(unittest.TestCase):
         )
 
         self.assertIn("Feed health: all sources OK", digest)
+
+    def test_main_fail_on_source_errors_returns_2(self):
+        with (
+            patch("patchpulse.Path.mkdir"),
+            patch("patchpulse.load_sources", return_value=[{"name": "Broken", "url": "https://example.com/rss"}]),
+            patch("patchpulse.fetch_feed_with_stats", return_value=([], {"source": "Broken", "status": "error", "error": "URLError", "items": 0, "skipped": 0})),
+            patch("patchpulse.print_source_summary"),
+            patch("patchpulse.argparse.ArgumentParser.parse_args") as parse_args,
+        ):
+            parse_args.return_value = type(
+                "Args",
+                (),
+                {
+                    "sources": "data/sources.json",
+                    "outdir": "reports",
+                    "format": "markdown",
+                    "limit": 8,
+                    "source_health_footer": False,
+                    "source_health_mode": "errors-only",
+                    "fail_on_source_errors": True,
+                },
+            )()
+
+            rc = patchpulse.main()
+
+        self.assertEqual(rc, 2)
 
 
 if __name__ == "__main__":

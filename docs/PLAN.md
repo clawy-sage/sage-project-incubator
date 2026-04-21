@@ -32,6 +32,7 @@
 - [x] Discord-JSON Payload um Source-Observability erweitern (per-source status/error/items/skipped + totals)
 - [x] Discord-Textdigest optional um Source-Health-Footer erweitern (error count + betroffene Quellen)
 - [x] Source-Health-Mode ergänzen (`errors-only` vs `always`) inkl. Tests
+- [x] `--fail-on-source-errors` ergänzen (Exit-Code 2 bei Source-Errors) inkl. Tests
 
 ## Track B — ausgelagert
 

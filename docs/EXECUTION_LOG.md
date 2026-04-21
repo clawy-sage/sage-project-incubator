@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-21 (PatchPulse Fail-on-Source-Errors)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: --fail-on-source-errors Flag ergänzen (non-zero Exit bei Source-Errors) + Tests für Exit-Code-Verhalten.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - Neues `has_source_errors(...)` zur klaren Source-Error-Auswertung.
+    - Neuer CLI-Flag `--fail-on-source-errors` ergänzt.
+    - `main()` liefert jetzt Exit-Code `2`, wenn Flag aktiv ist und mindestens eine Quelle Fehlerstatus hat.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Unit-Test für `has_source_errors(...)`.
+    - Unit-Test für `main()`-Exit-Code-Verhalten mit aktivem `--fail-on-source-errors`.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (13/13)**
+- Warum diese Änderung:
+  - Macht PatchPulse zuverlässig automationsfähig für Cron/CI, weil Feed-Fehler sauber als non-zero Exit propagiert werden.
+  - Reduziert False-Green-Läufe bei partiell ausgefallenen Quellen.
+- Nächster Schritt:
+  - Optionalen Schwellwert ergänzen (z. B. `--max-source-errors`), damit bei tolerierbaren Ausfällen nicht sofort fail-fast ausgelöst wird.
+
 ## 2026-04-21 (PatchPulse Source-Health-Mode)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

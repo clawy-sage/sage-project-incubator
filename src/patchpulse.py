@@ -300,6 +300,10 @@ def print_source_summary(source_stats: list[dict]) -> None:
             print(f"- {st['source']}: items={st.get('items', 0)}, skipped={st.get('skipped', 0)}")
 
 
+def has_source_errors(source_stats: list[dict]) -> bool:
+    return any(st.get("status") == "error" for st in source_stats)
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="PatchPulse MVP")
     parser.add_argument("--sources", default="data/sources.json")
@@ -316,6 +320,11 @@ def main() -> int:
         choices=["errors-only", "always"],
         default="errors-only",
         help="Control footer rendering when --source-health-footer is set",
+    )
+    parser.add_argument(
+        "--fail-on-source-errors",
+        action="store_true",
+        help="Exit with code 2 if any source fetch/parsing error occurred",
     )
     args = parser.parse_args()
 
@@ -362,6 +371,9 @@ def main() -> int:
         print(f"wrote {payload_file}")
 
     print_source_summary(source_stats)
+
+    if args.fail_on_source_errors and has_source_errors(source_stats):
+        return 2
     return 0
 
 
