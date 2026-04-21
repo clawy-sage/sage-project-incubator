@@ -211,6 +211,7 @@ def render_discord_digest(
     limit: int,
     source_stats: list[dict] | None = None,
     include_source_health: bool = False,
+    source_health_mode: str = "errors-only",
 ) -> str:
     lines = [f"**PatchPulse Digest ({date})**", ""]
     if not items:
@@ -226,14 +227,19 @@ def render_discord_digest(
         lines.append(f"   <{it['url']}>")
 
     if include_source_health and source_stats is not None:
+        mode = source_health_mode.strip().lower()
+        if mode not in {"errors-only", "always"}:
+            mode = "errors-only"
+
         error_sources = [st.get("source", "unknown") for st in source_stats if st.get("status") == "error"]
-        lines.append("")
-        if error_sources:
-            names = ", ".join(error_sources)
-            label = "source" if len(error_sources) == 1 else "sources"
-            lines.append(f"⚠️ Feed health: {len(error_sources)} {label} with errors ({names})")
-        else:
-            lines.append("✅ Feed health: all sources OK")
+        if error_sources or mode == "always":
+            lines.append("")
+            if error_sources:
+                names = ", ".join(error_sources)
+                label = "source" if len(error_sources) == 1 else "sources"
+                lines.append(f"⚠️ Feed health: {len(error_sources)} {label} with errors ({names})")
+            else:
+                lines.append("✅ Feed health: all sources OK")
 
     return "\n".join(lines)
 
@@ -305,6 +311,12 @@ def main() -> int:
         action="store_true",
         help="Append source health footer in discord text output",
     )
+    parser.add_argument(
+        "--source-health-mode",
+        choices=["errors-only", "always"],
+        default="errors-only",
+        help="Control footer rendering when --source-health-footer is set",
+    )
     args = parser.parse_args()
 
     sources = load_sources(Path(args.sources))
@@ -338,6 +350,7 @@ def main() -> int:
                 limit,
                 source_stats=source_stats,
                 include_source_health=args.source_health_footer,
+                source_health_mode=args.source_health_mode,
             ),
             encoding="utf-8",
         )

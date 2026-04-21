@@ -152,8 +152,26 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertIn("Feed A: items=2, skipped=1", report)
         self.assertIn("Feed B: ERROR (URLError)", report)
 
-    def test_render_discord_digest_optionally_includes_source_health_footer(self):
-        digest = patchpulse.render_discord_digest(
+    def test_render_discord_digest_source_health_mode_errors_only(self):
+        digest_ok = patchpulse.render_discord_digest(
+            [
+                {
+                    "topic": "Model Releases",
+                    "priority": 3,
+                    "title": "Major model launch",
+                    "url": "https://example.com/a",
+                    "source": "Feed A",
+                }
+            ],
+            "2026-04-20",
+            limit=3,
+            source_stats=[{"source": "Feed A", "status": "ok", "items": 1, "skipped": 0}],
+            include_source_health=True,
+            source_health_mode="errors-only",
+        )
+        self.assertNotIn("Feed health:", digest_ok)
+
+        digest_error = patchpulse.render_discord_digest(
             [
                 {
                     "topic": "Model Releases",
@@ -170,9 +188,29 @@ class PatchPulseCoreTests(unittest.TestCase):
                 {"source": "Feed B", "status": "error", "items": 0, "skipped": 0, "error": "URLError"},
             ],
             include_source_health=True,
+            source_health_mode="errors-only",
+        )
+        self.assertIn("Feed health: 1 source with errors (Feed B)", digest_error)
+
+    def test_render_discord_digest_source_health_mode_always(self):
+        digest = patchpulse.render_discord_digest(
+            [
+                {
+                    "topic": "Model Releases",
+                    "priority": 3,
+                    "title": "Major model launch",
+                    "url": "https://example.com/a",
+                    "source": "Feed A",
+                }
+            ],
+            "2026-04-20",
+            limit=3,
+            source_stats=[{"source": "Feed A", "status": "ok", "items": 1, "skipped": 0}],
+            include_source_health=True,
+            source_health_mode="always",
         )
 
-        self.assertIn("Feed health: 1 source with errors (Feed B)", digest)
+        self.assertIn("Feed health: all sources OK", digest)
 
 
 if __name__ == "__main__":

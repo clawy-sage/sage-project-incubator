@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-21 (PatchPulse Source-Health-Mode)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: --source-health-mode ergänzen (errors-only vs always) und mit CLI-/Unit-Tests absichern.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - `render_discord_digest(...)` unterstützt jetzt `source_health_mode` mit den Modi `errors-only` und `always`.
+    - In `errors-only` wird der Feed-Health-Footer nur bei Fehlerquellen ausgegeben; in `always` auch im OK-Fall.
+    - Neuer CLI-Flag `--source-health-mode` (Choices: `errors-only`, `always`) ergänzt.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Test für `errors-only` (kein Footer bei OK, Footer bei Fehlern).
+    - Test für `always` (OK-Footer wird erzwungen).
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (11/11)**
+- Warum diese Änderung:
+  - Reduziert Noise im Discord-Digest bei gesunden Feeds (`errors-only` als sinnvolles Default).
+  - Erhält optional volle Transparenz (`always`) für Debug-/Monitoring-Phasen.
+- Nächster Schritt:
+  - CLI-Flag `--fail-on-source-errors` ergänzen (Exit-Code != 0 bei Feed-Fehlern), damit Cron/CI Fehler automatisch erkennen kann.
+
 ## 2026-04-20 (PatchPulse Discord Source-Health-Footer)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
