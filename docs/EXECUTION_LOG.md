@@ -1,5 +1,30 @@
 # Execution Log
 
+## 2026-04-22 (PatchPulse max-source-errors Schwellwert)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: --max-source-errors Schwellwert ergänzen (tolerierbare Source-Ausfälle konfigurierbar) + Tests für Exit-Code-Grenzfälle.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - Neues `count_source_errors(...)` ergänzt.
+    - Neuer CLI-Flag `--max-source-errors` ergänzt.
+    - Exit-Code-Logik erweitert: Rückgabe `2`, wenn tatsächliche Source-Errors den konfigurierten Schwellwert überschreiten.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Unit-Test für `count_source_errors(...)`.
+    - Zwei Grenzfall-Tests für `main()`:
+      - Fehlerzahl **gleich** Schwellwert -> Exit `0`
+      - Fehlerzahl **größer** Schwellwert -> Exit `2`
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (16/16)**
+- Warum diese Änderung:
+  - Ermöglicht robustere Cron/CI-Steuerung in realen Setups mit gelegentlich instabilen Quellen.
+  - Verhindert unnötige Failures bei tolerierbaren Einzel-Ausfällen, ohne echte Ausfallserien zu verstecken.
+- Nächster Schritt:
+  - Optionalen per-Source Retry/Backoff-Mechanismus ergänzen (mit klaren Retry-Limits + Tests), um temporäre Fehler noch besser abzufangen.
+
 ## 2026-04-21 (PatchPulse Fail-on-Source-Errors)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

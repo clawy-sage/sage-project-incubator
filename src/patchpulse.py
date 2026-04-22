@@ -304,6 +304,10 @@ def has_source_errors(source_stats: list[dict]) -> bool:
     return any(st.get("status") == "error" for st in source_stats)
 
 
+def count_source_errors(source_stats: list[dict]) -> int:
+    return sum(1 for st in source_stats if st.get("status") == "error")
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="PatchPulse MVP")
     parser.add_argument("--sources", default="data/sources.json")
@@ -325,6 +329,12 @@ def main() -> int:
         "--fail-on-source-errors",
         action="store_true",
         help="Exit with code 2 if any source fetch/parsing error occurred",
+    )
+    parser.add_argument(
+        "--max-source-errors",
+        type=int,
+        default=None,
+        help="Allowed number of source errors before exiting with code 2 (e.g. 1 tolerates one broken source)",
     )
     args = parser.parse_args()
 
@@ -372,8 +382,16 @@ def main() -> int:
 
     print_source_summary(source_stats)
 
-    if args.fail_on_source_errors and has_source_errors(source_stats):
+    source_error_count = count_source_errors(source_stats)
+
+    if args.fail_on_source_errors and source_error_count > 0:
         return 2
+
+    if args.max_source_errors is not None:
+        max_errors = max(0, args.max_source_errors)
+        if source_error_count > max_errors:
+            return 2
+
     return 0
 
 

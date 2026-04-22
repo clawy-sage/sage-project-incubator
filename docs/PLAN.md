@@ -33,6 +33,7 @@
 - [x] Discord-Textdigest optional um Source-Health-Footer erweitern (error count + betroffene Quellen)
 - [x] Source-Health-Mode ergänzen (`errors-only` vs `always`) inkl. Tests
 - [x] `--fail-on-source-errors` ergänzen (Exit-Code 2 bei Source-Errors) inkl. Tests
+- [x] `--max-source-errors` Schwellwert ergänzen (tolerierbare Source-Ausfälle konfigurierbar) inkl. Grenzfall-Tests
 
 ## Track B — ausgelagert
 

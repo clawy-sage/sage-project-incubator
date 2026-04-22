@@ -37,6 +37,19 @@ class PatchPulseCoreTests(unittest.TestCase):
             )
         )
 
+    def test_count_source_errors_counts_only_error_status(self):
+        self.assertEqual(patchpulse.count_source_errors([]), 0)
+        self.assertEqual(
+            patchpulse.count_source_errors(
+                [
+                    {"source": "A", "status": "ok"},
+                    {"source": "B", "status": "error"},
+                    {"source": "C", "status": "error"},
+                ]
+            ),
+            2,
+        )
+
     def test_classify_topic_model_release(self):
         item = {
             "title": "Gemini model release for developers",
@@ -242,6 +255,73 @@ class PatchPulseCoreTests(unittest.TestCase):
                     "source_health_footer": False,
                     "source_health_mode": "errors-only",
                     "fail_on_source_errors": True,
+                    "max_source_errors": None,
+                },
+            )()
+
+            rc = patchpulse.main()
+
+        self.assertEqual(rc, 2)
+
+    def test_main_max_source_errors_allows_threshold(self):
+        with (
+            patch("patchpulse.Path.mkdir"),
+            patch("patchpulse.load_sources", return_value=[{"name": "A", "url": "https://example.com/a"}, {"name": "B", "url": "https://example.com/b"}]),
+            patch(
+                "patchpulse.fetch_feed_with_stats",
+                side_effect=[
+                    ([], {"source": "A", "status": "error", "error": "URLError", "items": 0, "skipped": 0}),
+                    ([], {"source": "B", "status": "ok", "items": 0, "skipped": 0}),
+                ],
+            ),
+            patch("patchpulse.print_source_summary"),
+            patch("patchpulse.argparse.ArgumentParser.parse_args") as parse_args,
+        ):
+            parse_args.return_value = type(
+                "Args",
+                (),
+                {
+                    "sources": "data/sources.json",
+                    "outdir": "reports",
+                    "format": "markdown",
+                    "limit": 8,
+                    "source_health_footer": False,
+                    "source_health_mode": "errors-only",
+                    "fail_on_source_errors": False,
+                    "max_source_errors": 1,
+                },
+            )()
+
+            rc = patchpulse.main()
+
+        self.assertEqual(rc, 0)
+
+    def test_main_max_source_errors_exceeds_threshold_returns_2(self):
+        with (
+            patch("patchpulse.Path.mkdir"),
+            patch("patchpulse.load_sources", return_value=[{"name": "A", "url": "https://example.com/a"}, {"name": "B", "url": "https://example.com/b"}]),
+            patch(
+                "patchpulse.fetch_feed_with_stats",
+                side_effect=[
+                    ([], {"source": "A", "status": "error", "error": "URLError", "items": 0, "skipped": 0}),
+                    ([], {"source": "B", "status": "error", "error": "HTTPError", "items": 0, "skipped": 0}),
+                ],
+            ),
+            patch("patchpulse.print_source_summary"),
+            patch("patchpulse.argparse.ArgumentParser.parse_args") as parse_args,
+        ):
+            parse_args.return_value = type(
+                "Args",
+                (),
+                {
+                    "sources": "data/sources.json",
+                    "outdir": "reports",
+                    "format": "markdown",
+                    "limit": 8,
+                    "source_health_footer": False,
+                    "source_health_mode": "errors-only",
+                    "fail_on_source_errors": False,
+                    "max_source_errors": 1,
                 },
             )()
 
