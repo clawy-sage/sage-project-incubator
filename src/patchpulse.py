@@ -6,6 +6,7 @@ import datetime as dt
 import hashlib
 import json
 from pathlib import Path
+import time
 import xml.etree.ElementTree as ET
 from urllib.error import HTTPError, URLError
 from urllib.request import urlopen
@@ -89,16 +90,33 @@ def _extract_items_from_root(root: ET.Element, source_name: str) -> tuple[list[d
     return items, skipped
 
 
-def fetch_feed_with_stats(source_name: str, url: str) -> tuple[list[dict], dict]:
+def fetch_feed_with_stats(
+    source_name: str,
+    url: str,
+    retries: int = 0,
+    backoff_seconds: float = 0.0,
+) -> tuple[list[dict], dict]:
     stats = {"source": source_name, "items": 0, "skipped": 0, "status": "ok", "error": ""}
 
-    try:
-        with urlopen(url, timeout=20) as resp:
-            raw = resp.read()
-    except (HTTPError, URLError, TimeoutError, ValueError) as exc:
-        stats["status"] = "error"
-        stats["error"] = type(exc).__name__
-        return [], stats
+    max_attempts = max(1, int(retries) + 1)
+    delay = max(0.0, float(backoff_seconds))
+
+    raw = b""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            with urlopen(url, timeout=20) as resp:
+                raw = resp.read()
+            stats["status"] = "ok"
+            stats["error"] = ""
+            break
+        except (HTTPError, URLError, TimeoutError, ValueError) as exc:
+            stats["status"] = "error"
+            stats["error"] = type(exc).__name__
+            if attempt < max_attempts:
+                if delay > 0:
+                    time.sleep(delay * attempt)
+                continue
+            return [], stats
 
     try:
         root = ET.fromstring(raw)
@@ -113,8 +131,8 @@ def fetch_feed_with_stats(source_name: str, url: str) -> tuple[list[dict], dict]
     return items, stats
 
 
-def fetch_feed(source_name: str, url: str) -> list[dict]:
-    items, _ = fetch_feed_with_stats(source_name, url)
+def fetch_feed(source_name: str, url: str, retries: int = 0, backoff_seconds: float = 0.0) -> list[dict]:
+    items, _ = fetch_feed_with_stats(source_name, url, retries=retries, backoff_seconds=backoff_seconds)
     return items
 
 
@@ -336,6 +354,18 @@ def main() -> int:
         default=None,
         help="Allowed number of source errors before exiting with code 2 (e.g. 1 tolerates one broken source)",
     )
+    parser.add_argument(
+        "--source-retries",
+        type=int,
+        default=0,
+        help="Retry attempts per source for transport errors (0 disables retries)",
+    )
+    parser.add_argument(
+        "--retry-backoff-seconds",
+        type=float,
+        default=0.0,
+        help="Linear backoff base in seconds between retries (actual delay = base * attempt)",
+    )
     args = parser.parse_args()
 
     sources = load_sources(Path(args.sources))
@@ -343,7 +373,12 @@ def main() -> int:
     source_stats: list[dict] = []
     for s in sources:
         source_name = s.get("name", "unknown")
-        items, stats = fetch_feed_with_stats(source_name, s["url"])
+        items, stats = fetch_feed_with_stats(
+            source_name,
+            s["url"],
+            retries=args.source_retries,
+            backoff_seconds=args.retry_backoff_seconds,
+        )
         all_items.extend(items)
         source_stats.append(stats)
 

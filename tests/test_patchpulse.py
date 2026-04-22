@@ -86,6 +86,46 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(stats["status"], "error")
         self.assertEqual(stats["error"], "URLError")
 
+    def test_fetch_feed_with_stats_retries_and_recovers(self):
+        rss = b"""<?xml version='1.0' encoding='UTF-8'?>
+<rss><channel>
+  <item><title>Recovered</title><link>https://example.com/recovered</link></item>
+</channel></rss>
+"""
+        with (
+            patch("patchpulse.urlopen", side_effect=[URLError("flaky"), _FakeResponse(rss)]),
+            patch("patchpulse.time.sleep") as sleep_mock,
+        ):
+            items, stats = patchpulse.fetch_feed_with_stats(
+                "Flaky Feed",
+                "https://example.com/rss",
+                retries=1,
+                backoff_seconds=0.5,
+            )
+
+        self.assertEqual(len(items), 1)
+        self.assertEqual(items[0]["title"], "Recovered")
+        self.assertEqual(stats["status"], "ok")
+        self.assertEqual(stats["error"], "")
+        sleep_mock.assert_called_once_with(0.5)
+
+    def test_fetch_feed_with_stats_retries_exhausted(self):
+        with (
+            patch("patchpulse.urlopen", side_effect=[URLError("a"), URLError("b")]),
+            patch("patchpulse.time.sleep") as sleep_mock,
+        ):
+            items, stats = patchpulse.fetch_feed_with_stats(
+                "Broken Feed",
+                "https://example.com/rss",
+                retries=1,
+                backoff_seconds=0.25,
+            )
+
+        self.assertEqual(items, [])
+        self.assertEqual(stats["status"], "error")
+        self.assertEqual(stats["error"], "URLError")
+        sleep_mock.assert_called_once_with(0.25)
+
     def test_fetch_feed_skips_items_with_missing_fields(self):
         rss = b"""<?xml version='1.0' encoding='UTF-8'?>
 <rss><channel>
@@ -256,6 +296,8 @@ class PatchPulseCoreTests(unittest.TestCase):
                     "source_health_mode": "errors-only",
                     "fail_on_source_errors": True,
                     "max_source_errors": None,
+                    "source_retries": 0,
+                    "retry_backoff_seconds": 0.0,
                 },
             )()
 
@@ -289,6 +331,8 @@ class PatchPulseCoreTests(unittest.TestCase):
                     "source_health_mode": "errors-only",
                     "fail_on_source_errors": False,
                     "max_source_errors": 1,
+                    "source_retries": 0,
+                    "retry_backoff_seconds": 0.0,
                 },
             )()
 
@@ -322,6 +366,8 @@ class PatchPulseCoreTests(unittest.TestCase):
                     "source_health_mode": "errors-only",
                     "fail_on_source_errors": False,
                     "max_source_errors": 1,
+                    "source_retries": 0,
+                    "retry_backoff_seconds": 0.0,
                 },
             )()
 

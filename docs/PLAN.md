@@ -34,6 +34,7 @@
 - [x] Source-Health-Mode ergänzen (`errors-only` vs `always`) inkl. Tests
 - [x] `--fail-on-source-errors` ergänzen (Exit-Code 2 bei Source-Errors) inkl. Tests
 - [x] `--max-source-errors` Schwellwert ergänzen (tolerierbare Source-Ausfälle konfigurierbar) inkl. Grenzfall-Tests
+- [x] Per-Source Retry/Backoff (konfigurierbar) ergänzen inkl. Tests für transiente Feed-Fehler und Retry-Limits
 
 ## Track B — ausgelagert
 

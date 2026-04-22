@@ -1,5 +1,29 @@
 # Execution Log
 
+## 2026-04-22 (PatchPulse Retry/Backoff pro Source)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Per-Source Retry/Backoff (konfigurierbar) ergänzen + Tests für transiente Feed-Fehler und Retry-Limits.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - `fetch_feed_with_stats(...)` unterstützt jetzt konfigurierbare Retries (`retries`) und lineares Backoff (`backoff_seconds`) für Transportfehler.
+    - Neue CLI-Flags ergänzt: `--source-retries` und `--retry-backoff-seconds`.
+    - Fetch-Pfad in `main()` nutzt die neuen Retry-/Backoff-Parameter pro Quelle.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Recovery-Fall: erster Request scheitert, Retry erfolgreich.
+    - Exhausted-Fall: Retry-Limit erreicht, Quelle bleibt im Fehlerstatus.
+    - Bestehende `main()`-Tests um neue CLI-Args ergänzt.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK**
+- Warum diese Änderung:
+  - Fängt transiente Netzwerk-/Feed-Probleme robuster ab, ohne sofort den kompletten Lauf zu degradieren.
+  - Verbessert Cron-Stabilität bei kurzzeitigen Ausfällen einzelner Quellen.
+- Nächster Schritt:
+  - Retry-Observability im Source-Summary ergänzen (z. B. attempts per source), damit im Report sichtbar wird, welche Feeds nur nach Retries erfolgreich waren.
+
 ## 2026-04-22 (PatchPulse max-source-errors Schwellwert)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

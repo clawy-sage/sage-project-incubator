@@ -38,6 +38,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Optionaler Source-Health-Footer im Discord-Textdigest via `--source-health-footer` + `--source-health-mode` (`errors-only`/`always`)
 - Optionales Fail-Fast-Verhalten via `--fail-on-source-errors` (Exit-Code `2` bei Feed-Fehlern)
 - Optionaler Fehlerschwellwert via `--max-source-errors` (Exit-Code `2`, wenn Fehlerzahl den Schwellwert überschreitet)
+- Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds` für transiente Transportfehler
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
 - Discord-JSON enthält jetzt optional `source_summary` + `source_summary_totals` für Downstream-Alerts/Automation
 
@@ -51,6 +52,7 @@ python3 src/patchpulse.py --format discord --limit 8 --source-health-footer --so
 python3 src/patchpulse.py --format discord-json --limit 8
 python3 src/patchpulse.py --format markdown --fail-on-source-errors
 python3 src/patchpulse.py --format markdown --max-source-errors 1
+python3 src/patchpulse.py --format markdown --source-retries 2 --retry-backoff-seconds 0.5
 
 ```
 
@@ -69,3 +71,4 @@ python3 src/patchpulse.py --format markdown --max-source-errors 1
 - [x] Source-Health-Footer unterstützt Modi `errors-only` (nur bei Fehlern) und `always`
 - [x] Optionales Fail-Fast bei Source-Errors via `--fail-on-source-errors` (Exit-Code 2)
 - [x] Optionaler Source-Error-Schwellwert via `--max-source-errors`
+- [x] Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds`
