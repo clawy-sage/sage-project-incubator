@@ -130,6 +130,55 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertTrue(stats["retried"])
         sleep_mock.assert_called_once_with(0.25)
 
+    def test_compute_retry_delay_respects_cap(self):
+        delay = patchpulse._compute_retry_delay(0.5, attempt=3, backoff_cap_seconds=1.0)
+        self.assertEqual(delay, 1.0)
+
+    def test_compute_retry_delay_with_seeded_jitter_is_deterministic(self):
+        rng_a = patchpulse.random.Random(42)
+        rng_b = patchpulse.random.Random(42)
+
+        delay_a = patchpulse._compute_retry_delay(
+            1.0,
+            attempt=2,
+            backoff_cap_seconds=2.0,
+            backoff_jitter_ratio=0.2,
+            rng=rng_a,
+        )
+        delay_b = patchpulse._compute_retry_delay(
+            1.0,
+            attempt=2,
+            backoff_cap_seconds=2.0,
+            backoff_jitter_ratio=0.2,
+            rng=rng_b,
+        )
+
+        self.assertAlmostEqual(delay_a, delay_b, places=10)
+        self.assertGreaterEqual(delay_a, 1.6)
+        self.assertLessEqual(delay_a, 2.4)
+
+    def test_fetch_feed_with_stats_retry_sleep_uses_cap_and_seeded_jitter(self):
+        with (
+            patch("patchpulse.urlopen", side_effect=[URLError("flaky"), URLError("still bad")]),
+            patch("patchpulse.time.sleep") as sleep_mock,
+        ):
+            items, stats = patchpulse.fetch_feed_with_stats(
+                "Flaky Feed",
+                "https://example.com/rss",
+                retries=1,
+                backoff_seconds=1.0,
+                backoff_cap_seconds=0.5,
+                backoff_jitter_ratio=0.2,
+                jitter_seed=42,
+            )
+
+        self.assertEqual(items, [])
+        self.assertEqual(stats["status"], "error")
+        sleep_mock.assert_called_once()
+        slept = sleep_mock.call_args[0][0]
+        self.assertGreaterEqual(slept, 0.4)
+        self.assertLessEqual(slept, 0.6)
+
     def test_fetch_feed_skips_items_with_missing_fields(self):
         rss = b"""<?xml version='1.0' encoding='UTF-8'?>
 <rss><channel>
@@ -306,6 +355,9 @@ class PatchPulseCoreTests(unittest.TestCase):
                     "max_source_errors": None,
                     "source_retries": 0,
                     "retry_backoff_seconds": 0.0,
+                    "retry_backoff_cap_seconds": None,
+                    "retry_backoff_jitter_ratio": 0.0,
+                    "retry_jitter_seed": None,
                 },
             )()
 
@@ -341,6 +393,9 @@ class PatchPulseCoreTests(unittest.TestCase):
                     "max_source_errors": 1,
                     "source_retries": 0,
                     "retry_backoff_seconds": 0.0,
+                    "retry_backoff_cap_seconds": None,
+                    "retry_backoff_jitter_ratio": 0.0,
+                    "retry_jitter_seed": None,
                 },
             )()
 
@@ -376,6 +431,9 @@ class PatchPulseCoreTests(unittest.TestCase):
                     "max_source_errors": 1,
                     "source_retries": 0,
                     "retry_backoff_seconds": 0.0,
+                    "retry_backoff_cap_seconds": None,
+                    "retry_backoff_jitter_ratio": 0.0,
+                    "retry_jitter_seed": None,
                 },
             )()
 

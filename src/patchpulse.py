@@ -6,6 +6,7 @@ import datetime as dt
 import hashlib
 import json
 from pathlib import Path
+import random
 import time
 import xml.etree.ElementTree as ET
 from urllib.error import HTTPError, URLError
@@ -90,11 +91,37 @@ def _extract_items_from_root(root: ET.Element, source_name: str) -> tuple[list[d
     return items, skipped
 
 
+def _compute_retry_delay(
+    backoff_seconds: float,
+    attempt: int,
+    backoff_cap_seconds: float | None = None,
+    backoff_jitter_ratio: float = 0.0,
+    rng: random.Random | None = None,
+) -> float:
+    delay = max(0.0, float(backoff_seconds)) * max(1, int(attempt))
+
+    if backoff_cap_seconds is not None:
+        delay = min(delay, max(0.0, float(backoff_cap_seconds)))
+
+    jitter_ratio = max(0.0, float(backoff_jitter_ratio))
+    if jitter_ratio > 0 and delay > 0:
+        rand = (rng or random).random()
+        low = max(0.0, 1.0 - jitter_ratio)
+        high = 1.0 + jitter_ratio
+        factor = low + (high - low) * rand
+        delay *= factor
+
+    return delay
+
+
 def fetch_feed_with_stats(
     source_name: str,
     url: str,
     retries: int = 0,
     backoff_seconds: float = 0.0,
+    backoff_cap_seconds: float | None = None,
+    backoff_jitter_ratio: float = 0.0,
+    jitter_seed: int | None = None,
 ) -> tuple[list[dict], dict]:
     stats = {
         "source": source_name,
@@ -108,6 +135,7 @@ def fetch_feed_with_stats(
 
     max_attempts = max(1, int(retries) + 1)
     delay = max(0.0, float(backoff_seconds))
+    rng = random.Random(jitter_seed) if jitter_seed is not None else None
 
     raw = b""
     for attempt in range(1, max_attempts + 1):
@@ -124,7 +152,14 @@ def fetch_feed_with_stats(
             stats["error"] = type(exc).__name__
             if attempt < max_attempts:
                 if delay > 0:
-                    time.sleep(delay * attempt)
+                    sleep_for = _compute_retry_delay(
+                        delay,
+                        attempt,
+                        backoff_cap_seconds=backoff_cap_seconds,
+                        backoff_jitter_ratio=backoff_jitter_ratio,
+                        rng=rng,
+                    )
+                    time.sleep(sleep_for)
                 continue
             stats["retried"] = max_attempts > 1
             return [], stats
@@ -393,6 +428,24 @@ def main() -> int:
         default=0.0,
         help="Linear backoff base in seconds between retries (actual delay = base * attempt)",
     )
+    parser.add_argument(
+        "--retry-backoff-cap-seconds",
+        type=float,
+        default=None,
+        help="Optional upper cap for retry sleep duration in seconds",
+    )
+    parser.add_argument(
+        "--retry-backoff-jitter-ratio",
+        type=float,
+        default=0.0,
+        help="Optional jitter ratio for retry backoff (0.2 => ±20% jitter)",
+    )
+    parser.add_argument(
+        "--retry-jitter-seed",
+        type=int,
+        default=None,
+        help="Optional random seed for deterministic retry jitter (useful for tests)",
+    )
     args = parser.parse_args()
 
     sources = load_sources(Path(args.sources))
@@ -405,6 +458,9 @@ def main() -> int:
             s["url"],
             retries=args.source_retries,
             backoff_seconds=args.retry_backoff_seconds,
+            backoff_cap_seconds=args.retry_backoff_cap_seconds,
+            backoff_jitter_ratio=args.retry_backoff_jitter_ratio,
+            jitter_seed=args.retry_jitter_seed,
         )
         all_items.extend(items)
         source_stats.append(stats)

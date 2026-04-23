@@ -39,6 +39,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Optionales Fail-Fast-Verhalten via `--fail-on-source-errors` (Exit-Code `2` bei Feed-Fehlern)
 - Optionaler Fehlerschwellwert via `--max-source-errors` (Exit-Code `2`, wenn Fehlerzahl den Schwellwert überschreitet)
 - Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds` für transiente Transportfehler
+- Optionales Retry-Tuning via `--retry-backoff-cap-seconds` + `--retry-backoff-jitter-ratio` (deterministisch testbar via `--retry-jitter-seed`)
 - Source-Observability enthält Retry-Metriken (`attempts`, `retried`) in Report/CLI/Discord-JSON
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
 - Discord-JSON enthält jetzt optional `source_summary` + `source_summary_totals` für Downstream-Alerts/Automation
@@ -54,6 +55,7 @@ python3 src/patchpulse.py --format discord-json --limit 8
 python3 src/patchpulse.py --format markdown --fail-on-source-errors
 python3 src/patchpulse.py --format markdown --max-source-errors 1
 python3 src/patchpulse.py --format markdown --source-retries 2 --retry-backoff-seconds 0.5
+python3 src/patchpulse.py --format markdown --source-retries 3 --retry-backoff-seconds 0.5 --retry-backoff-cap-seconds 2 --retry-backoff-jitter-ratio 0.2
 
 ```
 
@@ -74,3 +76,4 @@ python3 src/patchpulse.py --format markdown --source-retries 2 --retry-backoff-s
 - [x] Optionaler Source-Error-Schwellwert via `--max-source-errors`
 - [x] Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds`
 - [x] Retry-Observability in Source-Stats (`attempts`, `retried`) für Report/CLI/Discord-JSON
+- [x] Retry-Backoff optional mit Delay-Cap/Jitter konfigurierbar (`--retry-backoff-cap-seconds`, `--retry-backoff-jitter-ratio`, `--retry-jitter-seed`)

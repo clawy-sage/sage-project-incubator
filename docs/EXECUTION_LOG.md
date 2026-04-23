@@ -1,5 +1,31 @@
 # Execution Log
 
+## 2026-04-23 (PatchPulse Retry-Backoff mit Delay-Cap/Jitter)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Retry-Backoff mit optionalem Jitter/Delay-Cap ergänzen + Tests für deterministisches Verhalten.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - Neuer Delay-Rechner `_compute_retry_delay(...)` mit optionalem Delay-Cap (`backoff_cap_seconds`) und Jitter (`backoff_jitter_ratio`).
+    - `fetch_feed_with_stats(...)` nutzt nun optionalen Jitter-Seed (`jitter_seed`) für reproduzierbares Retry-Verhalten.
+    - Neue CLI-Flags ergänzt: `--retry-backoff-cap-seconds`, `--retry-backoff-jitter-ratio`, `--retry-jitter-seed`.
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Delay-Cap-Logik getestet.
+    - Seeded-Jitter auf deterministisches Verhalten geprüft.
+    - Retry-Sleep mit Cap+Jitter im Fetch-Flow abgesichert.
+    - `main()`-Argument-Mocks auf neue CLI-Felder erweitert.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK**
+- Warum diese Änderung:
+  - Verhindert unkontrolliert lange Retry-Wartezeiten bei vielen gleichzeitigen Source-Fehlern.
+  - Jitter reduziert Burst-Retry-Spitzen und macht den Lauf robuster unter Last.
+  - Seed-Option hält Verhalten in Tests reproduzierbar.
+- Nächster Schritt:
+  - Retry-Parameter optional pro Source konfigurierbar machen (statt global), damit fragile Feeds fein granular behandelt werden können.
+
 ## 2026-04-23 (PatchPulse Retry-Observability in Source-Stats)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

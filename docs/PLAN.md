@@ -36,6 +36,7 @@
 - [x] `--max-source-errors` Schwellwert ergänzen (tolerierbare Source-Ausfälle konfigurierbar) inkl. Grenzfall-Tests
 - [x] Per-Source Retry/Backoff (konfigurierbar) ergänzen inkl. Tests für transiente Feed-Fehler und Retry-Limits
 - [x] Retry-Observability ergänzen (attempts/retried per source in Summary + Discord-JSON Payload) inkl. Tests
+- [x] Retry-Backoff mit optionalem Jitter/Delay-Cap ergänzen + Tests für deterministisches Verhalten
 
 ## Track B — ausgelagert
 
