@@ -96,18 +96,28 @@ def fetch_feed_with_stats(
     retries: int = 0,
     backoff_seconds: float = 0.0,
 ) -> tuple[list[dict], dict]:
-    stats = {"source": source_name, "items": 0, "skipped": 0, "status": "ok", "error": ""}
+    stats = {
+        "source": source_name,
+        "items": 0,
+        "skipped": 0,
+        "status": "ok",
+        "error": "",
+        "attempts": 0,
+        "retried": False,
+    }
 
     max_attempts = max(1, int(retries) + 1)
     delay = max(0.0, float(backoff_seconds))
 
     raw = b""
     for attempt in range(1, max_attempts + 1):
+        stats["attempts"] = attempt
         try:
             with urlopen(url, timeout=20) as resp:
                 raw = resp.read()
             stats["status"] = "ok"
             stats["error"] = ""
+            stats["retried"] = attempt > 1
             break
         except (HTTPError, URLError, TimeoutError, ValueError) as exc:
             stats["status"] = "error"
@@ -116,6 +126,7 @@ def fetch_feed_with_stats(
                 if delay > 0:
                     time.sleep(delay * attempt)
                 continue
+            stats["retried"] = max_attempts > 1
             return [], stats
 
     try:
@@ -187,10 +198,16 @@ def sort_items(items: list[dict]) -> list[dict]:
 def render_source_summary(source_stats: list[dict]) -> list[str]:
     lines = ["## Source Summary", ""]
     for st in source_stats:
+        attempts = int(st.get("attempts", 1) or 1)
+        retried = bool(st.get("retried", False))
         if st.get("status") == "error":
-            lines.append(f"- {st['source']}: ERROR ({st.get('error', 'UnknownError')})")
+            lines.append(
+                f"- {st['source']}: ERROR ({st.get('error', 'UnknownError')}), attempts={attempts}, retried={str(retried).lower()}"
+            )
         else:
-            lines.append(f"- {st['source']}: items={st.get('items', 0)}, skipped={st.get('skipped', 0)}")
+            lines.append(
+                f"- {st['source']}: items={st.get('items', 0)}, skipped={st.get('skipped', 0)}, attempts={attempts}, retried={str(retried).lower()}"
+            )
     lines.append("")
     return lines
 
@@ -296,6 +313,8 @@ def render_discord_payload(
                 "items": int(st.get("items", 0) or 0),
                 "skipped": int(st.get("skipped", 0) or 0),
                 "error": st.get("error", ""),
+                "attempts": int(st.get("attempts", 1) or 1),
+                "retried": bool(st.get("retried", False)),
             }
             for st in source_stats
         ]
@@ -304,6 +323,8 @@ def render_discord_payload(
             "errors": sum(1 for st in source_stats if st.get("status") == "error"),
             "items": sum(int(st.get("items", 0) or 0) for st in source_stats),
             "skipped": sum(int(st.get("skipped", 0) or 0) for st in source_stats),
+            "retried_sources": sum(1 for st in source_stats if bool(st.get("retried", False))),
+            "total_attempts": sum(int(st.get("attempts", 1) or 1) for st in source_stats),
         }
 
     return payload
@@ -312,10 +333,16 @@ def render_discord_payload(
 def print_source_summary(source_stats: list[dict]) -> None:
     print("source summary:")
     for st in source_stats:
+        attempts = int(st.get("attempts", 1) or 1)
+        retried = bool(st.get("retried", False))
         if st.get("status") == "error":
-            print(f"- {st['source']}: ERROR ({st.get('error', 'UnknownError')})")
+            print(
+                f"- {st['source']}: ERROR ({st.get('error', 'UnknownError')}), attempts={attempts}, retried={str(retried).lower()}"
+            )
         else:
-            print(f"- {st['source']}: items={st.get('items', 0)}, skipped={st.get('skipped', 0)}")
+            print(
+                f"- {st['source']}: items={st.get('items', 0)}, skipped={st.get('skipped', 0)}, attempts={attempts}, retried={str(retried).lower()}"
+            )
 
 
 def has_source_errors(source_stats: list[dict]) -> bool:

@@ -107,6 +107,8 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(items[0]["title"], "Recovered")
         self.assertEqual(stats["status"], "ok")
         self.assertEqual(stats["error"], "")
+        self.assertEqual(stats["attempts"], 2)
+        self.assertTrue(stats["retried"])
         sleep_mock.assert_called_once_with(0.5)
 
     def test_fetch_feed_with_stats_retries_exhausted(self):
@@ -124,6 +126,8 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(items, [])
         self.assertEqual(stats["status"], "error")
         self.assertEqual(stats["error"], "URLError")
+        self.assertEqual(stats["attempts"], 2)
+        self.assertTrue(stats["retried"])
         sleep_mock.assert_called_once_with(0.25)
 
     def test_fetch_feed_skips_items_with_missing_fields(self):
@@ -179,8 +183,8 @@ class PatchPulseCoreTests(unittest.TestCase):
             },
         ]
         source_stats = [
-            {"source": "Feed A", "status": "ok", "items": 2, "skipped": 1},
-            {"source": "Feed B", "status": "error", "items": 0, "skipped": 0, "error": "URLError"},
+            {"source": "Feed A", "status": "ok", "items": 2, "skipped": 1, "attempts": 1, "retried": False},
+            {"source": "Feed B", "status": "error", "items": 0, "skipped": 0, "error": "URLError", "attempts": 3, "retried": True},
         ]
 
         payload = patchpulse.render_discord_payload(items, "2026-04-16", limit=1, source_stats=source_stats)
@@ -197,24 +201,28 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(len(payload["source_summary"]), 2)
         self.assertEqual(payload["source_summary"][1]["status"], "error")
         self.assertEqual(payload["source_summary"][1]["error"], "URLError")
+        self.assertEqual(payload["source_summary"][1]["attempts"], 3)
+        self.assertTrue(payload["source_summary"][1]["retried"])
         self.assertEqual(payload["source_summary_totals"]["sources"], 2)
         self.assertEqual(payload["source_summary_totals"]["errors"], 1)
         self.assertEqual(payload["source_summary_totals"]["items"], 2)
         self.assertEqual(payload["source_summary_totals"]["skipped"], 1)
+        self.assertEqual(payload["source_summary_totals"]["retried_sources"], 1)
+        self.assertEqual(payload["source_summary_totals"]["total_attempts"], 4)
 
     def test_render_report_includes_source_summary(self):
         report = patchpulse.render_report(
             [],
             "2026-04-17",
             source_stats=[
-                {"source": "Feed A", "status": "ok", "items": 2, "skipped": 1},
-                {"source": "Feed B", "status": "error", "error": "URLError"},
+                {"source": "Feed A", "status": "ok", "items": 2, "skipped": 1, "attempts": 1, "retried": False},
+                {"source": "Feed B", "status": "error", "error": "URLError", "attempts": 2, "retried": True},
             ],
         )
 
         self.assertIn("## Source Summary", report)
-        self.assertIn("Feed A: items=2, skipped=1", report)
-        self.assertIn("Feed B: ERROR (URLError)", report)
+        self.assertIn("Feed A: items=2, skipped=1, attempts=1, retried=false", report)
+        self.assertIn("Feed B: ERROR (URLError), attempts=2, retried=true", report)
 
     def test_render_discord_digest_source_health_mode_errors_only(self):
         digest_ok = patchpulse.render_discord_digest(

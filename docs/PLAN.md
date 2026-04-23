@@ -35,6 +35,7 @@
 - [x] `--fail-on-source-errors` ergänzen (Exit-Code 2 bei Source-Errors) inkl. Tests
 - [x] `--max-source-errors` Schwellwert ergänzen (tolerierbare Source-Ausfälle konfigurierbar) inkl. Grenzfall-Tests
 - [x] Per-Source Retry/Backoff (konfigurierbar) ergänzen inkl. Tests für transiente Feed-Fehler und Retry-Limits
+- [x] Retry-Observability ergänzen (attempts/retried per source in Summary + Discord-JSON Payload) inkl. Tests
 
 ## Track B — ausgelagert
 

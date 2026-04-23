@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-23 (PatchPulse Retry-Observability in Source-Stats)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Source-Observability um Retry-Metriken erweitern (attempts/retried per source) + Tests für Summary-/Payload-Felder.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - `fetch_feed_with_stats(...)` schreibt jetzt Retry-Metriken pro Source (`attempts`, `retried`).
+    - Source-Summary-Ausgabe in Report/CLI enthält jetzt `attempts` + `retried` (auch bei Error-Sources).
+    - Discord-JSON Payload (`render_discord_payload`) enthält die Retry-Metriken pro Source und aggregierte Totals (`retried_sources`, `total_attempts`).
+  - Tests erweitert (`tests/test_patchpulse.py`):
+    - Retry-Recovery/Exhausted-Tests prüfen jetzt `attempts` und `retried`.
+    - Payload- und Report-Tests prüfen neue Retry-Felder in Summary/Totals.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK**
+- Warum diese Änderung:
+  - Macht sichtbar, welche Feeds nur nach Retry erfolgreich waren (wichtiger Signalgewinn für Betrieb/Monitoring).
+  - Verbessert Fehlersuche bei instabilen Quellen ohne Log-Diving.
+- Nächster Schritt:
+  - Optionales Retry-Delay-Cap/Jitter ergänzen, um Burst-Retry-Verhalten bei vielen gleichzeitig fehlernden Quellen kontrollierter zu machen.
+
 ## 2026-04-22 (PatchPulse Retry/Backoff pro Source)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

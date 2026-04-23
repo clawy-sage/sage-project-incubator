@@ -39,6 +39,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Optionales Fail-Fast-Verhalten via `--fail-on-source-errors` (Exit-Code `2` bei Feed-Fehlern)
 - Optionaler Fehlerschwellwert via `--max-source-errors` (Exit-Code `2`, wenn Fehlerzahl den Schwellwert überschreitet)
 - Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds` für transiente Transportfehler
+- Source-Observability enthält Retry-Metriken (`attempts`, `retried`) in Report/CLI/Discord-JSON
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
 - Discord-JSON enthält jetzt optional `source_summary` + `source_summary_totals` für Downstream-Alerts/Automation
 
@@ -72,3 +73,4 @@ python3 src/patchpulse.py --format markdown --source-retries 2 --retry-backoff-s
 - [x] Optionales Fail-Fast bei Source-Errors via `--fail-on-source-errors` (Exit-Code 2)
 - [x] Optionaler Source-Error-Schwellwert via `--max-source-errors`
 - [x] Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds`
+- [x] Retry-Observability in Source-Stats (`attempts`, `retried`) für Report/CLI/Discord-JSON
