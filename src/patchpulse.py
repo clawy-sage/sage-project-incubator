@@ -405,16 +405,18 @@ def resolve_source_retry_config(source: dict, args: argparse.Namespace) -> dict:
         except (TypeError, ValueError):
             return default
 
+    cap = _coerce_float(
+        source.get("retry_backoff_cap_seconds"),
+        args.retry_backoff_cap_seconds,
+    )
+
     return {
         "retries": max(0, _coerce_int(source.get("retries"), args.source_retries) or 0),
         "backoff_seconds": max(
             0.0,
             _coerce_float(source.get("retry_backoff_seconds"), args.retry_backoff_seconds) or 0.0,
         ),
-        "backoff_cap_seconds": _coerce_float(
-            source.get("retry_backoff_cap_seconds"),
-            args.retry_backoff_cap_seconds,
-        ),
+        "backoff_cap_seconds": cap if cap is None else max(0.0, cap),
         "backoff_jitter_ratio": max(
             0.0,
             _coerce_float(source.get("retry_backoff_jitter_ratio"), args.retry_backoff_jitter_ratio) or 0.0,

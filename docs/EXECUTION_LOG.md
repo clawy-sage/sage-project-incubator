@@ -1,5 +1,26 @@
 # Execution Log
 
+## 2026-04-24 (PatchPulse Source-Override-Schema + Invalid-Value Tests)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Source-Override-Schema im README mit JSON-Beispiel dokumentieren + Tests für ungültige/negative Override-Werte ergänzen.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `README.md` erweitert:
+    - Konkretes JSON-Beispiel für per-source Retry-Overrides ergänzt.
+    - Verhalten bei ungültigen Werten dokumentiert (Fallback auf CLI-Defaults / Clamping).
+  - `src/patchpulse.py` gehärtet:
+    - `resolve_source_retry_config(...)` normalisiert jetzt `retry_backoff_cap_seconds` ebenfalls defensiv (mindestens `0.0`).
+  - `tests/test_patchpulse.py` erweitert:
+    - Neuer Test für ungültige und negative Override-Werte (Fallback + Sanitizing) ergänzt.
+  - `docs/PLAN.md` aktualisiert.
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (24/24)**
+- Warum diese Änderung:
+  - Macht die Override-Funktion für Nutzer nachvollziehbar und direkt kopierbar.
+  - Verhindert stilles Fehlverhalten durch fehlerhafte JSON-Konfiguration in produktiven Cron-Läufen.
+- Nächster Schritt:
+  - Optionales Override-Validierungs-Feedback ergänzen (z. B. kompakte Warnliste pro Source bei korrigierten Werten), damit Sanitizing im Lauf transparent sichtbar wird.
+
 ## 2026-04-24 (PatchPulse per-Source Retry-Overrides)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

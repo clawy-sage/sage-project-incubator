@@ -40,6 +40,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Optionaler Fehlerschwellwert via `--max-source-errors` (Exit-Code `2`, wenn Fehlerzahl den Schwellwert überschreitet)
 - Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds` für transiente Transportfehler
 - Retry-Parameter können optional pro Source in `data/sources.json` überschrieben werden (`retries`, `retry_backoff_seconds`, `retry_backoff_cap_seconds`, `retry_backoff_jitter_ratio`, `retry_jitter_seed`)
+- Ungültige Override-Werte werden defensiv behandelt (nicht-numerisch => CLI-Default; negative Zahlen => auf sinnvolle Minimumwerte geklemmt)
 - Optionales Retry-Tuning via `--retry-backoff-cap-seconds` + `--retry-backoff-jitter-ratio` (deterministisch testbar via `--retry-jitter-seed`)
 - Source-Observability enthält Retry-Metriken (`attempts`, `retried`) in Report/CLI/Discord-JSON
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
@@ -58,6 +59,24 @@ python3 src/patchpulse.py --format markdown --max-source-errors 1
 python3 src/patchpulse.py --format markdown --source-retries 2 --retry-backoff-seconds 0.5
 python3 src/patchpulse.py --format markdown --source-retries 3 --retry-backoff-seconds 0.5 --retry-backoff-cap-seconds 2 --retry-backoff-jitter-ratio 0.2
 # einzelne Quellen können in data/sources.json feinjustiert werden (z. B. höhere retries nur für eine fragile source)
+
+# Beispiel: per-source Retry-Overrides
+# (alle Felder optional; fehlend/invalid fällt auf CLI-Defaults zurück)
+[
+  {
+    "name": "OpenAI News",
+    "url": "https://openai.com/news/rss.xml",
+    "retries": 3,
+    "retry_backoff_seconds": 0.5,
+    "retry_backoff_cap_seconds": 2.0,
+    "retry_backoff_jitter_ratio": 0.2,
+    "retry_jitter_seed": 42
+  },
+  {
+    "name": "Stable Feed",
+    "url": "https://example.com/stable.xml"
+  }
+]
 
 ```
 

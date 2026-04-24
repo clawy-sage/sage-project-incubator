@@ -363,6 +363,36 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(cfg["backoff_jitter_ratio"], 0.3)
         self.assertEqual(cfg["jitter_seed"], 42)
 
+    def test_resolve_source_retry_config_sanitizes_invalid_and_negative_values(self):
+        args = type(
+            "Args",
+            (),
+            {
+                "source_retries": 2,
+                "retry_backoff_seconds": 0.5,
+                "retry_backoff_cap_seconds": 1.0,
+                "retry_backoff_jitter_ratio": 0.2,
+                "retry_jitter_seed": 11,
+            },
+        )()
+
+        cfg = patchpulse.resolve_source_retry_config(
+            {
+                "retries": -5,
+                "retry_backoff_seconds": "oops",
+                "retry_backoff_cap_seconds": -3,
+                "retry_backoff_jitter_ratio": -0.7,
+                "retry_jitter_seed": "not-int",
+            },
+            args,
+        )
+
+        self.assertEqual(cfg["retries"], 0)
+        self.assertEqual(cfg["backoff_seconds"], 0.5)
+        self.assertEqual(cfg["backoff_cap_seconds"], 0.0)
+        self.assertEqual(cfg["backoff_jitter_ratio"], 0.0)
+        self.assertEqual(cfg["jitter_seed"], 11)
+
     def test_main_applies_per_source_retry_overrides(self):
         calls = []
 
