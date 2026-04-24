@@ -388,6 +388,41 @@ def count_source_errors(source_stats: list[dict]) -> int:
     return sum(1 for st in source_stats if st.get("status") == "error")
 
 
+def resolve_source_retry_config(source: dict, args: argparse.Namespace) -> dict:
+    def _coerce_int(value, default: int | None) -> int | None:
+        if value is None:
+            return default
+        try:
+            return int(value)
+        except (TypeError, ValueError):
+            return default
+
+    def _coerce_float(value, default: float | None) -> float | None:
+        if value is None:
+            return default
+        try:
+            return float(value)
+        except (TypeError, ValueError):
+            return default
+
+    return {
+        "retries": max(0, _coerce_int(source.get("retries"), args.source_retries) or 0),
+        "backoff_seconds": max(
+            0.0,
+            _coerce_float(source.get("retry_backoff_seconds"), args.retry_backoff_seconds) or 0.0,
+        ),
+        "backoff_cap_seconds": _coerce_float(
+            source.get("retry_backoff_cap_seconds"),
+            args.retry_backoff_cap_seconds,
+        ),
+        "backoff_jitter_ratio": max(
+            0.0,
+            _coerce_float(source.get("retry_backoff_jitter_ratio"), args.retry_backoff_jitter_ratio) or 0.0,
+        ),
+        "jitter_seed": _coerce_int(source.get("retry_jitter_seed"), args.retry_jitter_seed),
+    }
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="PatchPulse MVP")
     parser.add_argument("--sources", default="data/sources.json")
@@ -453,14 +488,15 @@ def main() -> int:
     source_stats: list[dict] = []
     for s in sources:
         source_name = s.get("name", "unknown")
+        retry_cfg = resolve_source_retry_config(s, args)
         items, stats = fetch_feed_with_stats(
             source_name,
             s["url"],
-            retries=args.source_retries,
-            backoff_seconds=args.retry_backoff_seconds,
-            backoff_cap_seconds=args.retry_backoff_cap_seconds,
-            backoff_jitter_ratio=args.retry_backoff_jitter_ratio,
-            jitter_seed=args.retry_jitter_seed,
+            retries=retry_cfg["retries"],
+            backoff_seconds=retry_cfg["backoff_seconds"],
+            backoff_cap_seconds=retry_cfg["backoff_cap_seconds"],
+            backoff_jitter_ratio=retry_cfg["backoff_jitter_ratio"],
+            jitter_seed=retry_cfg["jitter_seed"],
         )
         all_items.extend(items)
         source_stats.append(stats)

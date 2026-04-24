@@ -333,6 +333,89 @@ class PatchPulseCoreTests(unittest.TestCase):
 
         self.assertIn("Feed health: all sources OK", digest)
 
+    def test_resolve_source_retry_config_prefers_source_overrides(self):
+        args = type(
+            "Args",
+            (),
+            {
+                "source_retries": 1,
+                "retry_backoff_seconds": 0.5,
+                "retry_backoff_cap_seconds": 2.0,
+                "retry_backoff_jitter_ratio": 0.1,
+                "retry_jitter_seed": 123,
+            },
+        )()
+
+        cfg = patchpulse.resolve_source_retry_config(
+            {
+                "retries": 4,
+                "retry_backoff_seconds": 1.25,
+                "retry_backoff_cap_seconds": 3.5,
+                "retry_backoff_jitter_ratio": 0.3,
+                "retry_jitter_seed": 42,
+            },
+            args,
+        )
+
+        self.assertEqual(cfg["retries"], 4)
+        self.assertEqual(cfg["backoff_seconds"], 1.25)
+        self.assertEqual(cfg["backoff_cap_seconds"], 3.5)
+        self.assertEqual(cfg["backoff_jitter_ratio"], 0.3)
+        self.assertEqual(cfg["jitter_seed"], 42)
+
+    def test_main_applies_per_source_retry_overrides(self):
+        calls = []
+
+        def _fake_fetch(name, url, **kwargs):
+            calls.append({"name": name, "url": url, **kwargs})
+            return [], {"source": name, "status": "ok", "items": 0, "skipped": 0, "attempts": 1, "retried": False}
+
+        with (
+            patch("patchpulse.Path.mkdir"),
+            patch(
+                "patchpulse.load_sources",
+                return_value=[
+                    {
+                        "name": "A",
+                        "url": "https://example.com/a",
+                        "retries": 3,
+                        "retry_backoff_seconds": 1.5,
+                    },
+                    {"name": "B", "url": "https://example.com/b"},
+                ],
+            ),
+            patch("patchpulse.fetch_feed_with_stats", side_effect=_fake_fetch),
+            patch("patchpulse.print_source_summary"),
+            patch("patchpulse.argparse.ArgumentParser.parse_args") as parse_args,
+        ):
+            parse_args.return_value = type(
+                "Args",
+                (),
+                {
+                    "sources": "data/sources.json",
+                    "outdir": "reports",
+                    "format": "markdown",
+                    "limit": 8,
+                    "source_health_footer": False,
+                    "source_health_mode": "errors-only",
+                    "fail_on_source_errors": False,
+                    "max_source_errors": None,
+                    "source_retries": 1,
+                    "retry_backoff_seconds": 0.25,
+                    "retry_backoff_cap_seconds": 2.0,
+                    "retry_backoff_jitter_ratio": 0.2,
+                    "retry_jitter_seed": 7,
+                },
+            )()
+
+            rc = patchpulse.main()
+
+        self.assertEqual(rc, 0)
+        self.assertEqual(calls[0]["retries"], 3)
+        self.assertEqual(calls[0]["backoff_seconds"], 1.5)
+        self.assertEqual(calls[1]["retries"], 1)
+        self.assertEqual(calls[1]["backoff_seconds"], 0.25)
+
     def test_main_fail_on_source_errors_returns_2(self):
         with (
             patch("patchpulse.Path.mkdir"),

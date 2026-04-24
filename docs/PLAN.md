@@ -37,6 +37,7 @@
 - [x] Per-Source Retry/Backoff (konfigurierbar) ergänzen inkl. Tests für transiente Feed-Fehler und Retry-Limits
 - [x] Retry-Observability ergänzen (attempts/retried per source in Summary + Discord-JSON Payload) inkl. Tests
 - [x] Retry-Backoff mit optionalem Jitter/Delay-Cap ergänzen + Tests für deterministisches Verhalten
+- [x] Retry-Parameter optional pro Source konfigurierbar machen (`sources.json` Overrides für retries/backoff/cap/jitter) + Tests für Merge-Regeln
 
 ## Track B — ausgelagert
 

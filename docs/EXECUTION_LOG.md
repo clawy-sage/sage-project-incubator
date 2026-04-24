@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-24 (PatchPulse per-Source Retry-Overrides)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Retry-Parameter optional pro Source konfigurierbar machen (sources.json overrides für retries/backoff/cap/jitter) + Tests für Merge-Regeln.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - Neues `resolve_source_retry_config(...)` für Merge-Regeln zwischen globalen CLI-Defaults und optionalen Source-Overrides.
+    - `main()` nutzt pro Source jetzt individuelle Retry-Konfiguration (falls gesetzt), sonst CLI-Defaults.
+  - `tests/test_patchpulse.py` erweitert:
+    - Test für Override-Priorität (`resolve_source_retry_config` bevorzugt Source-Felder).
+    - Test auf `main()`-Ebene, dass unterschiedliche Sources unterschiedliche Retry-Parameter erhalten.
+  - `data/sources.json` ergänzt um ein konkretes Override-Beispiel (OpenAI News mit eigenen Retries/Backoff).
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (23/23)**
+- Warum diese Änderung:
+  - Erlaubt fein-granulare Tuning-Strategien für instabile Feeds ohne globales Overfitting.
+  - Senkt Latenz für stabile Quellen, während fragile Quellen weiterhin robust abgefangen werden.
+- Nächster Schritt:
+  - Source-Override-Schema in README als kurzes JSON-Beispiel dokumentieren und negative/ungültige Override-Werte explizit testen.
+
 ## 2026-04-23 (PatchPulse Retry-Backoff mit Delay-Cap/Jitter)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

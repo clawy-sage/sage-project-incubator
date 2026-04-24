@@ -1,5 +1,10 @@
 [
-  {"name": "OpenAI News", "url": "https://openai.com/news/rss.xml"},
+  {
+    "name": "OpenAI News",
+    "url": "https://openai.com/news/rss.xml",
+    "retries": 2,
+    "retry_backoff_seconds": 0.5
+  },
   {"name": "Anthropic News", "url": "https://www.anthropic.com/news/rss.xml"},
   {"name": "The Verge Tech", "url": "https://www.theverge.com/rss/index.xml"}
 ]
