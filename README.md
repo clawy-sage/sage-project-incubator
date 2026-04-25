@@ -46,6 +46,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Source-Observability enthält Retry-Metriken (`attempts`, `retried`) in Report/CLI/Discord-JSON
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
 - Discord-JSON enthält jetzt optional `source_summary` + `source_summary_totals` für Downstream-Alerts/Automation
+- Discord-JSON enthält optional `override_warnings`, wenn Source-Override-Werte während der Validierung korrigiert wurden
 
 ## Nutzung
 ```bash
@@ -101,3 +102,4 @@ python3 src/patchpulse.py --format markdown --source-retries 3 --retry-backoff-s
 - [x] Retry-Backoff optional mit Delay-Cap/Jitter konfigurierbar (`--retry-backoff-cap-seconds`, `--retry-backoff-jitter-ratio`, `--retry-jitter-seed`)
 - [x] Retry-Parameter optional pro Source überschreibbar (`data/sources.json` Overrides)
 - [x] Override-Validierungsfeedback im CLI ergänzt (Warnhinweise pro Source bei korrigierten Retry-Overrides)
+- [x] Discord-JSON kann Override-Validierungswarnungen als `override_warnings` ausgeben

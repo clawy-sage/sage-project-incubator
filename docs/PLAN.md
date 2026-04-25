@@ -40,6 +40,7 @@
 - [x] Retry-Parameter optional pro Source konfigurierbar machen (`sources.json` Overrides für retries/backoff/cap/jitter) + Tests für Merge-Regeln
 - [x] Source-Override-Schema im README mit JSON-Beispiel dokumentieren + Tests für ungültige/negative Override-Werte ergänzen
 - [x] Override-Validierungsfeedback ergänzen (Warnhinweise bei korrigierten Retry-Override-Werten je Source) + Tests für Warning-Output
+- [x] Override-Warnings optional im `discord-json` als Feld `override_warnings` ausgeben + Tests für Payload-Shape ergänzen
 
 ## Track B — ausgelagert
 

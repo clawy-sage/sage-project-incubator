@@ -315,7 +315,11 @@ def render_discord_digest(
 
 
 def render_discord_payload(
-    items: list[dict], date: str, limit: int, source_stats: list[dict] | None = None
+    items: list[dict],
+    date: str,
+    limit: int,
+    source_stats: list[dict] | None = None,
+    override_warnings: list[str] | None = None,
 ) -> dict:
     top = items[:limit]
     message_text = render_discord_digest(items, date, limit)
@@ -361,6 +365,9 @@ def render_discord_payload(
             "retried_sources": sum(1 for st in source_stats if bool(st.get("retried", False))),
             "total_attempts": sum(int(st.get("attempts", 1) or 1) for st in source_stats),
         }
+
+    if override_warnings:
+        payload["override_warnings"] = [str(w) for w in override_warnings]
 
     return payload
 
@@ -586,7 +593,13 @@ def main() -> int:
         print(f"wrote {digest}")
     else:
         payload_file = outdir / f"{today}-discord.json"
-        payload = render_discord_payload(ranked_items, today, limit, source_stats=source_stats)
+        payload = render_discord_payload(
+            ranked_items,
+            today,
+            limit,
+            source_stats=source_stats,
+            override_warnings=override_warnings,
+        )
         payload_file.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
         print(f"wrote {payload_file}")
 

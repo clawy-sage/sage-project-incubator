@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-25 (PatchPulse discord-json Override-Warnings)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Override-Warnings optional im discord-json als Feld `override_warnings` ausgeben + Tests für Payload-Shape ergänzen.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - `render_discord_payload(...)` akzeptiert jetzt optional `override_warnings`.
+    - Payload enthält das Feld `override_warnings` nur dann, wenn tatsächlich Warnungen vorhanden sind (kein unnötiges Leergeld im JSON).
+    - `main()` reicht gesammelte Override-Validierungswarnungen bei `--format discord-json` direkt in den Payload durch.
+  - `tests/test_patchpulse.py` erweitert:
+    - Payload-Test prüft, dass `override_warnings` korrekt ausgegeben wird.
+    - Zusätzlicher Test stellt sicher, dass das Feld bei leerer Warnliste fehlt.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (26/26)**
+- Warum diese Änderung:
+  - Macht Override-Korrekturen für Downstream-Automation maschinell auswertbar, statt nur im CLI-Text sichtbar.
+  - Hilft Alerts/Monitoring beim Erkennen fehlerhafter Feed-Konfigurationen ohne Log-Parsing.
+- Nächster Schritt:
+  - Option ergänzen, Override-Warnings im Discord-Textdigest als kompakte Fußnote auszugeben (z. B. `--source-health-footer` + `--include-override-warnings`).
+
 ## 2026-04-25 (PatchPulse Override-Validierungsfeedback)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

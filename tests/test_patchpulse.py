@@ -236,7 +236,13 @@ class PatchPulseCoreTests(unittest.TestCase):
             {"source": "Feed B", "status": "error", "items": 0, "skipped": 0, "error": "URLError", "attempts": 3, "retried": True},
         ]
 
-        payload = patchpulse.render_discord_payload(items, "2026-04-16", limit=1, source_stats=source_stats)
+        payload = patchpulse.render_discord_payload(
+            items,
+            "2026-04-16",
+            limit=1,
+            source_stats=source_stats,
+            override_warnings=["Feed B: retries override -1 < 0 -> klemme auf 0"],
+        )
 
         self.assertEqual(payload["type"], "discord_message_payload")
         self.assertEqual(payload["date"], "2026-04-16")
@@ -258,6 +264,12 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(payload["source_summary_totals"]["skipped"], 1)
         self.assertEqual(payload["source_summary_totals"]["retried_sources"], 1)
         self.assertEqual(payload["source_summary_totals"]["total_attempts"], 4)
+        self.assertIn("override_warnings", payload)
+        self.assertEqual(len(payload["override_warnings"]), 1)
+
+    def test_render_discord_payload_omits_override_warnings_when_empty(self):
+        payload = patchpulse.render_discord_payload([], "2026-04-25", limit=3, source_stats=[])
+        self.assertNotIn("override_warnings", payload)
 
     def test_render_report_includes_source_summary(self):
         report = patchpulse.render_report(
