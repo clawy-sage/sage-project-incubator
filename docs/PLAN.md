@@ -39,6 +39,7 @@
 - [x] Retry-Backoff mit optionalem Jitter/Delay-Cap ergänzen + Tests für deterministisches Verhalten
 - [x] Retry-Parameter optional pro Source konfigurierbar machen (`sources.json` Overrides für retries/backoff/cap/jitter) + Tests für Merge-Regeln
 - [x] Source-Override-Schema im README mit JSON-Beispiel dokumentieren + Tests für ungültige/negative Override-Werte ergänzen
+- [x] Override-Validierungsfeedback ergänzen (Warnhinweise bei korrigierten Retry-Override-Werten je Source) + Tests für Warning-Output
 
 ## Track B — ausgelagert
 

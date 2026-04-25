@@ -388,41 +388,93 @@ def count_source_errors(source_stats: list[dict]) -> int:
     return sum(1 for st in source_stats if st.get("status") == "error")
 
 
-def resolve_source_retry_config(source: dict, args: argparse.Namespace) -> dict:
-    def _coerce_int(value, default: int | None) -> int | None:
+def resolve_source_retry_config_with_warnings(source: dict, args: argparse.Namespace) -> tuple[dict, list[str]]:
+    warnings: list[str] = []
+    source_name = str(source.get("name", "unknown"))
+
+    def _coerce_int(
+        value,
+        default: int | None,
+        field: str,
+        min_value: int | None = None,
+    ) -> int | None:
         if value is None:
-            return default
-        try:
-            return int(value)
-        except (TypeError, ValueError):
             return default
 
-    def _coerce_float(value, default: float | None) -> float | None:
+        try:
+            parsed = int(value)
+        except (TypeError, ValueError):
+            warnings.append(
+                f"{source_name}: {field} override {value!r} ist ungültig -> nutze Default {default!r}"
+            )
+            return default
+
+        if min_value is not None and parsed < min_value:
+            warnings.append(
+                f"{source_name}: {field} override {parsed!r} < {min_value} -> klemme auf {min_value}"
+            )
+            return min_value
+
+        return parsed
+
+    def _coerce_float(
+        value,
+        default: float | None,
+        field: str,
+        min_value: float | None = None,
+    ) -> float | None:
         if value is None:
             return default
+
         try:
-            return float(value)
+            parsed = float(value)
         except (TypeError, ValueError):
+            warnings.append(
+                f"{source_name}: {field} override {value!r} ist ungültig -> nutze Default {default!r}"
+            )
             return default
+
+        if min_value is not None and parsed < min_value:
+            warnings.append(
+                f"{source_name}: {field} override {parsed!r} < {min_value} -> klemme auf {min_value}"
+            )
+            return min_value
+
+        return parsed
 
     cap = _coerce_float(
         source.get("retry_backoff_cap_seconds"),
         args.retry_backoff_cap_seconds,
+        "retry_backoff_cap_seconds",
+        min_value=0.0,
     )
 
-    return {
-        "retries": max(0, _coerce_int(source.get("retries"), args.source_retries) or 0),
-        "backoff_seconds": max(
-            0.0,
-            _coerce_float(source.get("retry_backoff_seconds"), args.retry_backoff_seconds) or 0.0,
-        ),
-        "backoff_cap_seconds": cap if cap is None else max(0.0, cap),
-        "backoff_jitter_ratio": max(
-            0.0,
-            _coerce_float(source.get("retry_backoff_jitter_ratio"), args.retry_backoff_jitter_ratio) or 0.0,
-        ),
-        "jitter_seed": _coerce_int(source.get("retry_jitter_seed"), args.retry_jitter_seed),
+    cfg = {
+        "retries": _coerce_int(source.get("retries"), args.source_retries, "retries", min_value=0) or 0,
+        "backoff_seconds": _coerce_float(
+            source.get("retry_backoff_seconds"),
+            args.retry_backoff_seconds,
+            "retry_backoff_seconds",
+            min_value=0.0,
+        )
+        or 0.0,
+        "backoff_cap_seconds": cap,
+        "backoff_jitter_ratio": _coerce_float(
+            source.get("retry_backoff_jitter_ratio"),
+            args.retry_backoff_jitter_ratio,
+            "retry_backoff_jitter_ratio",
+            min_value=0.0,
+        )
+        or 0.0,
+        "jitter_seed": _coerce_int(source.get("retry_jitter_seed"), args.retry_jitter_seed, "retry_jitter_seed"),
     }
+
+    return cfg, warnings
+
+
+def resolve_source_retry_config(source: dict, args: argparse.Namespace) -> dict:
+    cfg, _ = resolve_source_retry_config_with_warnings(source, args)
+    return cfg
 
 
 def main() -> int:
@@ -488,9 +540,11 @@ def main() -> int:
     sources = load_sources(Path(args.sources))
     all_items: list[dict] = []
     source_stats: list[dict] = []
+    override_warnings: list[str] = []
     for s in sources:
         source_name = s.get("name", "unknown")
-        retry_cfg = resolve_source_retry_config(s, args)
+        retry_cfg, cfg_warnings = resolve_source_retry_config_with_warnings(s, args)
+        override_warnings.extend(cfg_warnings)
         items, stats = fetch_feed_with_stats(
             source_name,
             s["url"],
@@ -537,6 +591,11 @@ def main() -> int:
         print(f"wrote {payload_file}")
 
     print_source_summary(source_stats)
+
+    if override_warnings:
+        print("override validation warnings:")
+        for w in override_warnings:
+            print(f"- {w}")
 
     source_error_count = count_source_errors(source_stats)
 

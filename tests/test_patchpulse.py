@@ -376,8 +376,9 @@ class PatchPulseCoreTests(unittest.TestCase):
             },
         )()
 
-        cfg = patchpulse.resolve_source_retry_config(
+        cfg, warnings = patchpulse.resolve_source_retry_config_with_warnings(
             {
+                "name": "Fragile Feed",
                 "retries": -5,
                 "retry_backoff_seconds": "oops",
                 "retry_backoff_cap_seconds": -3,
@@ -392,6 +393,44 @@ class PatchPulseCoreTests(unittest.TestCase):
         self.assertEqual(cfg["backoff_cap_seconds"], 0.0)
         self.assertEqual(cfg["backoff_jitter_ratio"], 0.0)
         self.assertEqual(cfg["jitter_seed"], 11)
+        self.assertGreaterEqual(len(warnings), 5)
+        self.assertTrue(any("Fragile Feed" in w for w in warnings))
+
+    def test_main_prints_override_validation_warnings(self):
+        with (
+            patch("patchpulse.Path.mkdir"),
+            patch("patchpulse.load_sources", return_value=[{"name": "A", "url": "https://example.com/a"}]),
+            patch("patchpulse.fetch_feed_with_stats", return_value=([], {"source": "A", "status": "ok", "items": 0, "skipped": 0, "attempts": 1, "retried": False})),
+            patch("patchpulse.resolve_source_retry_config_with_warnings", return_value=({"retries": 0, "backoff_seconds": 0.0, "backoff_cap_seconds": None, "backoff_jitter_ratio": 0.0, "jitter_seed": None}, ["A: retries override -1 < 0 -> klemme auf 0"])),
+            patch("patchpulse.print_source_summary"),
+            patch("patchpulse.print") as print_mock,
+            patch("patchpulse.argparse.ArgumentParser.parse_args") as parse_args,
+        ):
+            parse_args.return_value = type(
+                "Args",
+                (),
+                {
+                    "sources": "data/sources.json",
+                    "outdir": "reports",
+                    "format": "markdown",
+                    "limit": 8,
+                    "source_health_footer": False,
+                    "source_health_mode": "errors-only",
+                    "fail_on_source_errors": False,
+                    "max_source_errors": None,
+                    "source_retries": 0,
+                    "retry_backoff_seconds": 0.0,
+                    "retry_backoff_cap_seconds": None,
+                    "retry_backoff_jitter_ratio": 0.0,
+                    "retry_jitter_seed": None,
+                },
+            )()
+
+            rc = patchpulse.main()
+
+        self.assertEqual(rc, 0)
+        print_mock.assert_any_call("override validation warnings:")
+        print_mock.assert_any_call("- A: retries override -1 < 0 -> klemme auf 0")
 
     def test_main_applies_per_source_retry_overrides(self):
         calls = []

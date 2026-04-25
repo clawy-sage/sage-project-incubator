@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-25 (PatchPulse Override-Validierungsfeedback)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Override-Validierungsfeedback ergänzen (Warnhinweise bei korrigierten Retry-Override-Werten je Source) + Tests für Warning-Output.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - Neues `resolve_source_retry_config_with_warnings(...)` ergänzt (liefert Retry-Config + Warning-Liste).
+    - Korrigierte/ungültige Override-Werte erzeugen jetzt explizite Warnhinweise mit Source + Feld + Fallback/Clamping.
+    - `main()` gibt bei Bedarf einen kompakten `override validation warnings`-Block aus.
+  - `tests/test_patchpulse.py` erweitert:
+    - Test für Warning-Erzeugung bei invaliden/negativen Source-Overrides.
+    - Test für Warning-Output im `main()`-Flow.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+  - Testlauf: `python3 -m unittest discover -s tests -v` → **OK (25/25)**
+- Warum diese Änderung:
+  - Sanitizing war bereits robust, aber intransparent; jetzt ist sofort sichtbar, wenn Overrides korrigiert wurden.
+  - Erleichtert Betrieb/Debugging in Cron-Läufen ohne Code-Inspection.
+- Nächster Schritt:
+  - Override-Warnings optional in `discord-json` als strukturiertes Feld (`override_warnings`) ausgeben, damit Downstream-Automation Konfigurationsprobleme maschinell erkennen kann.
+
 ## 2026-04-24 (PatchPulse Source-Override-Schema + Invalid-Value Tests)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.

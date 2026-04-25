@@ -41,6 +41,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Optionales Per-Source Retry/Backoff via `--source-retries` + `--retry-backoff-seconds` für transiente Transportfehler
 - Retry-Parameter können optional pro Source in `data/sources.json` überschrieben werden (`retries`, `retry_backoff_seconds`, `retry_backoff_cap_seconds`, `retry_backoff_jitter_ratio`, `retry_jitter_seed`)
 - Ungültige Override-Werte werden defensiv behandelt (nicht-numerisch => CLI-Default; negative Zahlen => auf sinnvolle Minimumwerte geklemmt)
+- Bei korrigierten Override-Werten wird im CLI ein kompakter Warnblock ausgegeben (`override validation warnings`)
 - Optionales Retry-Tuning via `--retry-backoff-cap-seconds` + `--retry-backoff-jitter-ratio` (deterministisch testbar via `--retry-jitter-seed`)
 - Source-Observability enthält Retry-Metriken (`attempts`, `retried`) in Report/CLI/Discord-JSON
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
@@ -99,3 +100,4 @@ python3 src/patchpulse.py --format markdown --source-retries 3 --retry-backoff-s
 - [x] Retry-Observability in Source-Stats (`attempts`, `retried`) für Report/CLI/Discord-JSON
 - [x] Retry-Backoff optional mit Delay-Cap/Jitter konfigurierbar (`--retry-backoff-cap-seconds`, `--retry-backoff-jitter-ratio`, `--retry-jitter-seed`)
 - [x] Retry-Parameter optional pro Source überschreibbar (`data/sources.json` Overrides)
+- [x] Override-Validierungsfeedback im CLI ergänzt (Warnhinweise pro Source bei korrigierten Retry-Overrides)
