@@ -47,6 +47,7 @@ Ein kleines CLI-Tool, das tägliche Changelogs/Release Notes (z. B. AI-Tools, De
 - Discord JSON/Payload-Export für direktes Bot-Posting via `--format discord-json`
 - Discord-JSON enthält jetzt optional `source_summary` + `source_summary_totals` für Downstream-Alerts/Automation
 - Discord-JSON enthält optional `override_warnings`, wenn Source-Override-Werte während der Validierung korrigiert wurden
+- Discord-Textdigest kann optional Override-Validierungswarnungen als kompakten Footer ausgeben (`--include-override-warnings`)
 
 ## Nutzung
 ```bash
@@ -55,6 +56,7 @@ python3 src/patchpulse.py --format markdown
 python3 src/patchpulse.py --format discord --limit 8
 python3 src/patchpulse.py --format discord --limit 8 --source-health-footer
 python3 src/patchpulse.py --format discord --limit 8 --source-health-footer --source-health-mode always
+python3 src/patchpulse.py --format discord --limit 8 --include-override-warnings
 python3 src/patchpulse.py --format discord-json --limit 8
 python3 src/patchpulse.py --format markdown --fail-on-source-errors
 python3 src/patchpulse.py --format markdown --max-source-errors 1
@@ -103,3 +105,4 @@ python3 src/patchpulse.py --format markdown --source-retries 3 --retry-backoff-s
 - [x] Retry-Parameter optional pro Source überschreibbar (`data/sources.json` Overrides)
 - [x] Override-Validierungsfeedback im CLI ergänzt (Warnhinweise pro Source bei korrigierten Retry-Overrides)
 - [x] Discord-JSON kann Override-Validierungswarnungen als `override_warnings` ausgeben
+- [x] Discord-Textdigest kann optional Override-Validierungswarnungen als Footer ausgeben (`--include-override-warnings`)

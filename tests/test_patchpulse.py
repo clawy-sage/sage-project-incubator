@@ -345,6 +345,62 @@ class PatchPulseCoreTests(unittest.TestCase):
 
         self.assertIn("Feed health: all sources OK", digest)
 
+    def test_render_discord_digest_override_warnings_toggle(self):
+        base_items = [
+            {
+                "topic": "Developer Tooling",
+                "priority": 2,
+                "title": "CLI update",
+                "url": "https://example.com/cli",
+                "source": "Feed A",
+            }
+        ]
+        warnings = [
+            "Feed A: retries override -1 < 0 -> klemme auf 0",
+            "Feed B: retry_backoff_seconds override 'oops' ist ungültig -> nutze Default 0.5",
+        ]
+
+        digest_without = patchpulse.render_discord_digest(
+            base_items,
+            "2026-04-26",
+            limit=3,
+            include_override_warnings=False,
+            override_warnings=warnings,
+        )
+        self.assertNotIn("Override validation:", digest_without)
+
+        digest_with = patchpulse.render_discord_digest(
+            base_items,
+            "2026-04-26",
+            limit=3,
+            include_override_warnings=True,
+            override_warnings=warnings,
+        )
+        self.assertIn("Override validation: 2 warning(s) across 2 source(s): Feed A, Feed B", digest_with)
+
+    def test_render_discord_digest_override_warnings_can_stack_with_source_health_footer(self):
+        digest = patchpulse.render_discord_digest(
+            [
+                {
+                    "topic": "Model Releases",
+                    "priority": 3,
+                    "title": "Major model launch",
+                    "url": "https://example.com/a",
+                    "source": "Feed A",
+                }
+            ],
+            "2026-04-26",
+            limit=3,
+            source_stats=[{"source": "Feed X", "status": "error", "items": 0, "skipped": 0, "error": "URLError"}],
+            include_source_health=True,
+            source_health_mode="errors-only",
+            include_override_warnings=True,
+            override_warnings=["Feed A: retries override -1 < 0 -> klemme auf 0"],
+        )
+
+        self.assertIn("Feed health: 1 source with errors (Feed X)", digest)
+        self.assertIn("Override validation: 1 warning(s) across 1 source(s): Feed A", digest)
+
     def test_resolve_source_retry_config_prefers_source_overrides(self):
         args = type(
             "Args",

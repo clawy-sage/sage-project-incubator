@@ -41,6 +41,7 @@
 - [x] Source-Override-Schema im README mit JSON-Beispiel dokumentieren + Tests für ungültige/negative Override-Werte ergänzen
 - [x] Override-Validierungsfeedback ergänzen (Warnhinweise bei korrigierten Retry-Override-Werten je Source) + Tests für Warning-Output
 - [x] Override-Warnings optional im `discord-json` als Feld `override_warnings` ausgeben + Tests für Payload-Shape ergänzen
+- [x] Override-Warnings optional im Discord-Textdigest anzeigen (opt-in) + Tests für Footer-/Toggle-Verhalten
 
 ## Track B — ausgelagert
 

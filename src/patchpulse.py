@@ -275,6 +275,26 @@ def render_report(items: list[dict], date: str, source_stats: list[dict] | None 
     return "\n".join(lines)
 
 
+def _summarize_override_warnings(override_warnings: list[str]) -> str:
+    sources: list[str] = []
+    for warning in override_warnings:
+        prefix = str(warning).split(":", 1)[0].strip()
+        if prefix and prefix not in sources:
+            sources.append(prefix)
+
+    if not sources:
+        return f"{len(override_warnings)} warning(s)"
+
+    max_names = 3
+    shown = sources[:max_names]
+    extra = len(sources) - len(shown)
+    summary = ", ".join(shown)
+    if extra > 0:
+        summary += f", +{extra} more"
+
+    return f"{len(override_warnings)} warning(s) across {len(sources)} source(s): {summary}"
+
+
 def render_discord_digest(
     items: list[dict],
     date: str,
@@ -282,6 +302,8 @@ def render_discord_digest(
     source_stats: list[dict] | None = None,
     include_source_health: bool = False,
     source_health_mode: str = "errors-only",
+    include_override_warnings: bool = False,
+    override_warnings: list[str] | None = None,
 ) -> str:
     lines = [f"**PatchPulse Digest ({date})**", ""]
     if not items:
@@ -296,6 +318,8 @@ def render_discord_digest(
         )
         lines.append(f"   <{it['url']}>")
 
+    footer_lines: list[str] = []
+
     if include_source_health and source_stats is not None:
         mode = source_health_mode.strip().lower()
         if mode not in {"errors-only", "always"}:
@@ -303,13 +327,19 @@ def render_discord_digest(
 
         error_sources = [st.get("source", "unknown") for st in source_stats if st.get("status") == "error"]
         if error_sources or mode == "always":
-            lines.append("")
             if error_sources:
                 names = ", ".join(error_sources)
                 label = "source" if len(error_sources) == 1 else "sources"
-                lines.append(f"⚠️ Feed health: {len(error_sources)} {label} with errors ({names})")
+                footer_lines.append(f"⚠️ Feed health: {len(error_sources)} {label} with errors ({names})")
             else:
-                lines.append("✅ Feed health: all sources OK")
+                footer_lines.append("✅ Feed health: all sources OK")
+
+    if include_override_warnings and override_warnings:
+        footer_lines.append(f"⚠️ Override validation: {_summarize_override_warnings(override_warnings)}")
+
+    if footer_lines:
+        lines.append("")
+        lines.extend(footer_lines)
 
     return "\n".join(lines)
 
@@ -502,6 +532,11 @@ def main() -> int:
         help="Control footer rendering when --source-health-footer is set",
     )
     parser.add_argument(
+        "--include-override-warnings",
+        action="store_true",
+        help="Append compact override-validation warnings footer in discord text output",
+    )
+    parser.add_argument(
         "--fail-on-source-errors",
         action="store_true",
         help="Exit with code 2 if any source fetch/parsing error occurred",
@@ -587,6 +622,8 @@ def main() -> int:
                 source_stats=source_stats,
                 include_source_health=args.source_health_footer,
                 source_health_mode=args.source_health_mode,
+                include_override_warnings=args.include_override_warnings,
+                override_warnings=override_warnings,
             ),
             encoding="utf-8",
         )

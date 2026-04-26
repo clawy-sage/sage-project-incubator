@@ -1,5 +1,28 @@
 # Execution Log
 
+## 2026-04-26 (PatchPulse Discord-Textdigest Override-Warnings)
+
+- Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
+- Gewählter High-Impact-Task (PatchPulse):
+  - `[PatchPulse] Follow-up: Override-Warnings optional im Discord-Textdigest anzeigen (opt-in) + Tests für Footer-/Toggle-Verhalten.`
+- Umsetzung in diesem Inkrement (genau ein konkreter Schritt):
+  - `src/patchpulse.py` erweitert:
+    - Neuer opt-in Flag `--include-override-warnings` für `--format discord`.
+    - `render_discord_digest(...)` unterstützt jetzt optionalen Override-Warnings-Footer.
+    - Kompakte Warning-Summary (Anzahl + betroffene Sources) via `_summarize_override_warnings(...)` ergänzt.
+    - Footer kann gemeinsam mit bestehendem Source-Health-Footer gerendert werden.
+  - `tests/test_patchpulse.py` erweitert:
+    - Toggle-Test: Footer erscheint nur wenn `include_override_warnings=True`.
+    - Kombinations-Test: Source-Health-Footer + Override-Warnings-Footer funktionieren zusammen.
+  - Doku aktualisiert:
+    - `README.md`
+    - `docs/PLAN.md`
+- Warum diese Änderung:
+  - Macht Override-Probleme direkt im Discord-Textdigest sichtbar, ohne JSON-Output oder CLI-Logs prüfen zu müssen.
+  - Bleibt noise-arm, weil die Anzeige explizit opt-in ist.
+- Nächster Schritt:
+  - Override-Warnings im Discord-Textdigest optional um Detailschalter erweitern (z. B. `count|summary|full`) inklusive Längen-Schutz/Truncation für lange Warning-Listen.
+
 ## 2026-04-25 (PatchPulse discord-json Override-Warnings)
 
 - Notion To-Do Inbox (`To-Dos für Sage 🍂`) geprüft.
